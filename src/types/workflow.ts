@@ -125,45 +125,10 @@ export interface WorkflowAnalyticsData {
     extractedMemory?: { extractedCount: number };
   };
 }
-// export interface WorkflowAnalyticsData {
-//   workflowId: string;
-//   summary: WorkflowSummaryData;
-//   nodeExecutions: NodeExecutionData[];
-//   performance: PerformanceData;
-//   subjectDataSummary: SubjectDataSummary;
-//   timeline: TimelineData[];
-//   generatedAt: string;
-// }
 
-// 데이터베이스 저장 구조
 export interface ChatWorkflowStatsRecord {
   id?: number;
   chat_id: string;
   stats: WorkflowAnalyticsData;
   created_at?: string;
 }
-
-// 노드 타입 정의
-export type NodeType =
-  | 'loadChatHistory'
-  | 'loadMemory'
-  | 'generatePrompt'
-  | 'generateResponse'
-  | 'extractMemory';
-export type NodeStatus = 'completed' | 'failed' | 'pending';
-
-// 한국어 노드명 매핑
-export const NODE_NAME_KR: Record<NodeType, string> = {
-  loadChatHistory: '채팅 히스토리 로드',
-  loadMemory: '메모리 로드',
-  generatePrompt: '프롬프트 생성',
-  generateResponse: '응답 생성',
-  extractMemory: '메모리 추출',
-};
-
-// 상태 아이콘 매핑
-export const STATUS_ICON: Record<NodeStatus, string> = {
-  completed: '✅',
-  failed: '❌',
-  pending: '⏳',
-};
