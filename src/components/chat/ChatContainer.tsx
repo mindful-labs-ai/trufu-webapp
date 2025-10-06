@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 import { DateSeparator } from './DateSeparator';
-import { FriendSelectionModal } from './FriendSelectionModal';
 
 interface ChatContainerProps {
   user: User;
@@ -30,20 +29,17 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     isReady,
   } = useChat(user.id.toString(), selectedFriend?.botId || null);
 
-  const [showFriendSelection, setShowFriendSelection] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
-  // 스크롤을 최하단으로 이동하는 함수
   const scrollToBottom = () => {
     if (shouldAutoScroll) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  // 사용자 스크롤 감지
   const handleScroll = () => {
     const container = chatContainerRef.current;
     if (container) {
@@ -60,10 +56,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     }
   };
 
-  // 메시지가 변경되거나 로딩이 완료될 때 스크롤을 최하단으로 이동
   useEffect(() => {
     if (!isLoadingHistory) {
-      // 약간의 지연을 두어 DOM 업데이트 후 스크롤
       const timeoutId = setTimeout(() => {
         scrollToBottom();
       }, 100);
@@ -269,17 +263,6 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
       <ChatInput
         onSendMessage={handleSendMessage}
         disabled={isLoading || isLoadingHistory || !selectedFriend || !isReady}
-      />
-
-      <FriendSelectionModal
-        isOpen={showFriendSelection}
-        onClose={() => setShowFriendSelection(false)}
-        onSelectFriend={friend => {
-          selectFriend(friend);
-          setShowFriendSelection(false);
-        }}
-        availableFriends={availableFriends}
-        selectedFriend={selectedFriend}
       />
     </div>
   );

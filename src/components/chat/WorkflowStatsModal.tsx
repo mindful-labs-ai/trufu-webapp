@@ -10,7 +10,6 @@ import { WorkflowAnalyticsData } from '@/types/workflow';
 import { useEffect, useState } from 'react';
 
 interface WorkflowStatsModalProps {
-  // isOpen: boolean;
   onClose: () => void;
   messageId: string;
 }
@@ -27,10 +26,9 @@ const NODE_NAME_KR: Record<string, string> = {
   retrieveKnowledge: '📖 지식 검색',
 };
 
-type TabType = 'summary' | 'nodeData' | 'timeline' | 'openaiUsage';
+type TabType = 'summary' | 'nodeData' | 'timeline' | 'openaiUsage' | 'aiPrompt';
 
 export const WorkflowStatsModal = ({
-  // isOpen,
   onClose,
   messageId,
 }: WorkflowStatsModalProps) => {
@@ -41,6 +39,7 @@ export const WorkflowStatsModal = ({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showRawPrompt, setShowRawPrompt] = useState(false);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -114,6 +113,11 @@ export const WorkflowStatsModal = ({
                   key: 'openaiUsage' as const,
                   label: '☎️ OpenAI 요청',
                   icon: '☎️',
+                },
+                {
+                  key: 'aiPrompt' as const,
+                  label: '🤖 AI 프롬프트',
+                  icon: '🤖',
                 },
               ].map(tab => (
                 <button
@@ -730,6 +734,260 @@ export const WorkflowStatsModal = ({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+
+                {/* AI 프롬프트 Tab */}
+                {activeTab === 'aiPrompt' && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        🤖 AI 프롬프트 정보
+                      </h3>
+
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm text-gray-600">
+                          원본 모드 📝
+                        </span>
+                        <button
+                          onClick={() => setShowRawPrompt(!showRawPrompt)}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                            showRawPrompt ? 'bg-blue-600' : 'bg-gray-200'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform ${
+                              showRawPrompt ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    {(() => {
+                      const generatePromptNode = stats?.nodeExecutions?.find(
+                        (node: any) => node.nodeId === 'generatePrompt'
+                      );
+
+                      if (
+                        !generatePromptNode?.subjectData?.promptData?.messages
+                      ) {
+                        return (
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div className="flex">
+                              <div className="text-yellow-400">ℹ️</div>
+                              <div className="ml-3">
+                                <h3 className="text-sm font-medium text-yellow-800">
+                                  프롬프트 데이터 없음
+                                </h3>
+                                <div className="mt-2 text-sm text-yellow-700">
+                                  이 워크플로우에서 생성된 AI 프롬프트 정보가
+                                  없습니다.
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      const systemMessages =
+                        generatePromptNode.subjectData.promptData.messages
+                          .filter((m: any) => m.role === 'system')
+                          .map((m: any) => m.content)
+                          .join('\n\n');
+
+                      if (showRawPrompt) {
+                        return (
+                          <div className="space-y-4">
+                            <div className="bg-gray-900 rounded-lg p-4 overflow-auto">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-semibold text-green-400">
+                                  📄 원본 JSON 데이터
+                                </h4>
+                                {systemMessages ? (
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        systemMessages
+                                      );
+                                    }}
+                                    className="text-xs bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded transition-colors"
+                                  >
+                                    📋 복사
+                                  </button>
+                                ) : null}
+                              </div>
+                              <pre className="text-green-300 text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">
+                                {systemMessages
+                                  ? systemMessages
+                                  : JSON.stringify(
+                                      generatePromptNode?.subjectData
+                                        ?.promptData,
+                                      null,
+                                      2
+                                    )}
+                              </pre>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (!systemMessages) {
+                        return (
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div className="flex">
+                              <div className="text-yellow-400">ℹ️</div>
+                              <div className="ml-3">
+                                <h3 className="text-sm font-medium text-yellow-800">
+                                  시스템 프롬프트 없음
+                                </h3>
+                                <div className="mt-2 text-sm text-yellow-700">
+                                  이 워크플로우에서 시스템 역할의 프롬프트가
+                                  발견되지 않았습니다.
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      const parseMarkdownSections = (content: string) => {
+                        const sections: {
+                          title: string;
+                          content: string;
+                          type: string;
+                        }[] = [];
+                        const lines = content.split('\n');
+                        let currentSection = {
+                          title: '',
+                          content: '',
+                          type: 'default',
+                        };
+
+                        for (const line of lines) {
+                          const trimmedLine = line.trim();
+
+                          if (
+                            trimmedLine.startsWith('**') &&
+                            trimmedLine.endsWith('**') &&
+                            trimmedLine.length > 4
+                          ) {
+                            if (
+                              currentSection.title ||
+                              currentSection.content
+                            ) {
+                              sections.push({ ...currentSection });
+                            }
+
+                            const title = trimmedLine.slice(2, -2);
+                            let type = 'default';
+
+                            if (
+                              title.includes('Persona') ||
+                              title.includes('페르소나')
+                            )
+                              type = 'persona';
+                            else if (
+                              title.includes('금지') ||
+                              title.includes('피해야')
+                            )
+                              type = 'warning';
+                            else if (
+                              title.includes('핵심') ||
+                              title.includes('역할')
+                            )
+                              type = 'primary';
+                            else if (
+                              title.includes('주의') ||
+                              title.includes('가이드')
+                            )
+                              type = 'guide';
+                            else if (
+                              title.includes('감성지능') ||
+                              title.includes('활용')
+                            )
+                              type = 'intelligence';
+
+                            currentSection = { title, content: '', type };
+                          } else if (trimmedLine) {
+                            currentSection.content +=
+                              (currentSection.content ? '\n' : '') + line;
+                          }
+                        }
+
+                        if (currentSection.title || currentSection.content) {
+                          sections.push(currentSection);
+                        }
+
+                        return sections;
+                      };
+
+                      const sections = parseMarkdownSections(systemMessages);
+
+                      return (
+                        <div className="space-y-4">
+                          {sections.map((section, index) => {
+                            const bgColor = {
+                              persona: 'bg-blue-50 border-blue-200',
+                              warning: 'bg-red-50 border-red-200',
+                              primary: 'bg-green-50 border-green-200',
+                              guide: 'bg-purple-50 border-purple-200',
+                              intelligence: 'bg-orange-50 border-orange-200',
+                              default: 'bg-gray-50 border-gray-200',
+                            }[section.type];
+
+                            const titleColor = {
+                              persona: 'text-blue-800',
+                              warning: 'text-red-800',
+                              primary: 'text-green-800',
+                              guide: 'text-purple-800',
+                              intelligence: 'text-orange-800',
+                              default: 'text-gray-800',
+                            }[section.type];
+
+                            const contentColor = {
+                              persona: 'text-blue-700',
+                              warning: 'text-red-700',
+                              primary: 'text-green-700',
+                              guide: 'text-purple-700',
+                              intelligence: 'text-orange-700',
+                              default: 'text-gray-700',
+                            }[section.type];
+
+                            return (
+                              <div
+                                key={index}
+                                className={`border rounded-lg p-4 ${bgColor}`}
+                              >
+                                {section.title && (
+                                  <h4
+                                    className={`font-bold text-lg mb-3 ${titleColor}`}
+                                  >
+                                    {section.title}
+                                  </h4>
+                                )}
+                                <div
+                                  className={`whitespace-pre-wrap text-sm leading-relaxed ${contentColor}`}
+                                >
+                                  {section.content}
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          {sections.length === 0 && (
+                            <div className="bg-white border border-gray-200 rounded-lg p-4">
+                              <h4 className="font-semibold text-gray-900 mb-3">
+                                전체 시스템 프롬프트
+                              </h4>
+                              <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">
+                                {systemMessages}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
