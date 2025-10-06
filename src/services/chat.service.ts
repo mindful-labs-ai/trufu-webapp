@@ -1,0 +1,126 @@
+import { supabase } from '@/lib/supabase';
+import { ChatHistoryOptions, ChatMessageRecord, Message } from '@/types/chat';
+import {
+  TrufuChatRequest,
+  TrufuChatResponse,
+  TrufuChatSimpleMessage,
+} from '@/types/trufu';
+
+export class ChatService {
+  private static readonly API_ENDPOINT = '/api/chat';
+  private static readonly DEFAULT_BLOCK_ID = 'h2df43mloghruiutf9pwab1t';
+
+  static async sendMessage(
+    userId: string,
+    botId: string,
+    message: string
+  ): Promise<TrufuChatSimpleMessage> {
+    try {
+      const requestBody: TrufuChatRequest = {
+        intent: {
+          id: this.DEFAULT_BLOCK_ID,
+          name: 'trufu-chat',
+        },
+        userRequest: {
+          timezone: 'Asia/Seoul',
+          params: {
+            ignoreMe: 'true',
+          },
+          utterance: message,
+          lang: null,
+          user: {
+            id: userId,
+            type: 'accountId',
+            properties: {},
+          },
+        },
+        bot: {
+          id: botId,
+          name: 'Trufu AI',
+        },
+      };
+
+      const response = await fetch(this.API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API error:', errorData);
+        throw new Error(
+          errorData.error || `API request failed: ${response.statusText}`
+        );
+      }
+
+      const data: TrufuChatResponse = await response.json();
+      const outputs = data.template?.outputs || [];
+      const responseMessage = outputs.find(
+        (output: { simpleText?: { text: string } }) => output.simpleText
+      );
+
+      if (responseMessage?.simpleText?.text) {
+        return responseMessage;
+      }
+
+      return {
+        chat_hist_id: '',
+        simpleText: {
+          text: 'Sorry, I received an unexpected response format.',
+        },
+      };
+    } catch (error) {
+      console.error('ChatService error:', error);
+      throw error;
+    }
+  }
+
+  static async getChatHistory(options: ChatHistoryOptions): Promise<Message[]> {
+    try {
+      const {
+        userId,
+        botId,
+        limit = 50,
+        offset = 0,
+        orderBy = 'desc',
+      } = options;
+
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('bot_id', botId)
+        .order('updated_at', { ascending: orderBy === 'asc' })
+        .range(offset, offset + limit - 1);
+
+      if (error) {
+        console.error('Error fetching chat history:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
+
+      const messages: Message[] = data.map((record: ChatMessageRecord) => ({
+        id: record.chat_hist_id,
+        content: record.messages,
+        role: record.sender === 'user' ? 'user' : 'assistant',
+        timestamp: new Date(record.updated_at),
+      }));
+
+      // desc 순서로 조회했으므로 시간순으로 재정렬
+      if (orderBy === 'desc') {
+        messages.reverse();
+      }
+
+      return messages;
+    } catch (error) {
+      console.error('Failed to fetch chat history:', error);
+      throw error;
+    }
+  }
+}

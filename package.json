@@ -10,16 +10,19 @@
         "lint:fix": "next lint --fix",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "deploy:vercel": "vercel --prod",
+        "deploy:netlify": "netlify deploy --prod --dir=.next",
+        "preview": "next build && next start"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.50.5",
+        "clsx": "^2.1.1",
+        "dotenv": "^17.2.2",
         "next": "15.5.2",
         "react": "19.1.0",
         "react-dom": "19.1.0",
-        "clsx": "^2.1.1",
-        "tailwind-merge": "^3.3.1",
-        "dotenv": "^17.2.2",
-        "@supabase/supabase-js": "^2.50.5"
+        "tailwind-merge": "^3.3.1"
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",
@@ -28,6 +31,8 @@
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@typescript-eslint/eslint-plugin": "^8.45.0",
+        "@typescript-eslint/parser": "^8.45.0",
         "eslint": "^9",
         "eslint-config-next": "15.5.2",
         "eslint-config-prettier": "^10.1.8",
@@ -35,5 +40,5 @@
         "tailwindcss": "^4",
         "typescript": "^5"
     },
-    "packageManager": "pnpm@9.6.0"
+    "packageManager": "pnpm@10.18.0"
 }
