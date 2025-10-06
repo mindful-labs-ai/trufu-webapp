@@ -1,11 +1,7 @@
 import { OpenAIUsageSummary } from '@/services/openai-usage.service';
 import { WorkflowAnalyticsData } from '@/types/workflow';
 
-export type TabType =
-  | 'summary'
-  | 'nodeData'
-  | 'openaiUsage'
-  | 'aiPrompt';
+export type TabType = 'summary' | 'nodeData' | 'openaiUsage' | 'aiPrompt';
 
 export interface BaseTabProps {
   stats: WorkflowAnalyticsData;
