@@ -162,10 +162,7 @@ export const WorkflowStatsModal = ({
                       통계 없음
                     </h3>
                     <div className="mt-2 text-sm text-yellow-700">
-                      이 메시지에 대한 워크플로우 실행 통계가 없습니다. <br />-
-                      loading: {loading ? '로딩 중...' : '완료'} <br />- error:{' '}
-                      {error ? '오류 발생' : '없음'} <br />- stats:{' '}
-                      {stats ? '있음' : '없음'}
+                      이 메시지에 대한 워크플로우 실행 통계가 없습니다. <br />
                     </div>
                   </div>
                 </div>
@@ -209,7 +206,6 @@ export const WorkflowStatsModal = ({
                       </div>
                     </div>
 
-                    {/* Subject Data Summary */}
                     <div className="bg-gray-50 rounded-lg p-4">
                       <h3 className="font-medium text-gray-900 mb-3">
                         📋 처리된 데이터 요약
@@ -263,7 +259,6 @@ export const WorkflowStatsModal = ({
                   </div>
                 )}
 
-                {/* Node Data Tab */}
                 {activeTab === 'nodeData' && (
                   <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -409,8 +404,7 @@ export const WorkflowStatsModal = ({
 
                     {openaiUsage ? (
                       <>
-                        {/* 전체 요약 */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-green-50 rounded-lg p-4">
                             <div className="text-green-600 text-2xl font-bold">
                               {openaiUsage.total.totalRequests}
@@ -530,12 +524,11 @@ export const WorkflowStatsModal = ({
                           </div>
                         </div>
 
-                        {/* 노드별 상세 통계 */}
                         <div className="space-y-4">
                           <h4 className="font-semibold text-gray-900">
                             🔧 노드별 OpenAI API 사용량
                           </h4>
-                          <div className="grid grid-cols-1 gap-4">
+                          <div className="grid grid-cols-3 gap-4">
                             {openaiUsage.byNode?.map(nodeUsage => (
                               <div
                                 key={nodeUsage.nodeId}
@@ -546,8 +539,7 @@ export const WorkflowStatsModal = ({
                                     nodeUsage.nodeId}
                                 </h5>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {/* 노드별 Embeddings */}
+                                <div className="grid grid-cols-1 gap-4">
                                   {nodeUsage.embeddings.totalRequests > 0 && (
                                     <div className="bg-blue-50 rounded p-3">
                                       <h6 className="font-medium text-blue-900 mb-2">
