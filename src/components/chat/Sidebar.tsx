@@ -1,6 +1,6 @@
 'use client';
 
-import { useSelectedFriend } from '@/hooks/useSelectedFriend';
+import { useFriendStore } from '@/stores/friendStore';
 import type { Friend } from '@/types/friend';
 
 interface SidebarProps {
@@ -9,8 +9,7 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  const { selectedFriend, selectFriend, availableFriends } =
-    useSelectedFriend();
+  const { selectedFriend, selectFriend, availableFriends } = useFriendStore();
 
   return (
     <>
@@ -55,13 +54,11 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               </button>
             </div>
 
-            {/* New Chat Button */}
             <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               + New Chat
             </button>
           </div>
 
-          {/* Chat History List */}
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             <div className="mb-4">
               <h2 className="text-sm font-medium text-gray-600 mb-2">

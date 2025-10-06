@@ -1,7 +1,7 @@
 'use client';
 
-import { useSelectedFriend } from '@/hooks/useSelectedFriend';
-import { getAllUsers } from '@/services/user.service';
+import { useFriendStore } from '@/stores/friendStore';
+import { useUserStore } from '@/stores/userStore';
 import { User } from '@/types/user';
 import { useEffect, useRef, useState } from 'react';
 
@@ -12,31 +12,17 @@ interface HeaderProps {
 }
 
 export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
-  const { selectedFriend } = useSelectedFriend();
+  const { selectedFriend } = useFriendStore();
+  const { users, isLoadingUsers, loadUsers } = useUserStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 사용자 목록 로드
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        setIsLoadingUsers(true);
-        const userData = await getAllUsers();
-        setUsers(userData);
-      } catch (error) {
-        console.error('Failed to load users:', error);
-        setUsers([]);
-      } finally {
-        setIsLoadingUsers(false);
-      }
-    };
+    if (users.length === 0) {
+      loadUsers();
+    }
+  }, [users.length, loadUsers]);
 
-    loadUsers();
-  }, []);
-
-  // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -123,7 +109,6 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
             </svg>
           </button>
 
-          {/* Dropdown Menu */}
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
               <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
@@ -177,7 +162,6 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
           )}
         </div>
 
-        {/* AI Avatar */}
         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
           <span className="text-white text-sm font-medium">AI</span>
         </div>

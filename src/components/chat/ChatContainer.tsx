@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from '@/hooks/useChat';
-import { useSelectedFriend } from '@/hooks/useSelectedFriend';
+import { useFriendStore } from '@/stores/friendStore';
 import { User } from '@/types/user';
 import { useState } from 'react';
 import { ChatInput } from './ChatInput';
@@ -19,7 +19,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     selectFriend,
     availableFriends,
     isLoading: isFriendLoading,
-  } = useSelectedFriend();
+  } = useFriendStore();
 
   const {
     messages,
