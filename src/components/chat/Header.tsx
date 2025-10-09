@@ -65,7 +65,7 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
           </svg>
         </button>
         <h1 className="ml-2 text-xl font-semibold text-gray-800">
-          {selectedFriend ? `${selectedFriend.title}와 대화중` : 'Trufu Chat'}
+          {selectedFriend ? `${selectedFriend.name}와 대화중` : 'Trufu Chat'}
         </h1>
         <div className="ml-4 px-3 py-1 bg-blue-50 rounded-full">
           <span className="text-sm text-blue-700 font-medium">
@@ -75,7 +75,7 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
         {selectedFriend && (
           <div className="ml-2 px-3 py-1 bg-green-50 rounded-full">
             <span className="text-sm text-green-700 font-medium">
-              🤖 Bot: {selectedFriend.botId}
+              🤖 Bot: {selectedFriend.id}
             </span>
           </div>
         )}

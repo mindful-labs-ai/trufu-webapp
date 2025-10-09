@@ -26,7 +26,7 @@ export const WorkflowStatsModal = ({
   onClose,
   messageId,
 }: WorkflowStatsModalProps) => {
-  const [activeTab, setActiveTab] = useState<TabType>('summary');
+  const [activeTab, setActiveTab] = useState<TabType>('aiPrompt');
   const [stats, setStats] = useState<WorkflowAnalyticsData | null>(null);
   const [openaiUsage, setOpenaiUsage] = useState<OpenAIUsageSummary | null>(
     null
@@ -41,14 +41,18 @@ export const WorkflowStatsModal = ({
       setError(null);
 
       try {
-        const statsRecord = await getWorkflowStats(messageId);
+        const [statsRecord, openaiUsageRecords] = await Promise.all([
+          getWorkflowStats(messageId),
+          getOpenAIUsageByChat(messageId),
+        ]);
+
         if (statsRecord) {
           setStats(statsRecord.stats);
         } else {
+          setLoading(false);
           setStats(null);
         }
 
-        const openaiUsageRecords = await getOpenAIUsageByChat(messageId);
         if (openaiUsageRecords.length > 0) {
           const openaiSummary = calculateOpenAIUsageSummary(openaiUsageRecords);
           setOpenaiUsage(openaiSummary);
@@ -62,8 +66,6 @@ export const WorkflowStatsModal = ({
         setLoading(false);
       }
     };
-
-    console.log('useEffect triggered:', { messageId });
     if (messageId) {
       loadStats();
     }
@@ -99,7 +101,7 @@ export const WorkflowStatsModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-[50] flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         <ModalHeader onClose={onClose} />
 
@@ -107,12 +109,9 @@ export const WorkflowStatsModal = ({
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="flex-1 overflow-y-auto p-4">
-            <ContentArea
-              loading={loading}
-              error={error}
-              stats={stats}
-              children={renderTabContent()}
-            />
+            <ContentArea loading={loading} error={error} stats={stats}>
+              {renderTabContent()}
+            </ContentArea>
           </div>
         </div>
       </div>

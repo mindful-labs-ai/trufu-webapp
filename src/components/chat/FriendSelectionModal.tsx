@@ -53,21 +53,15 @@ export const FriendSelectionModal = ({
                 `}
               >
                 <div className="flex items-center space-x-3">
-                  {/* Avatar Placeholder */}
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg">
-                    {friend.title.charAt(0)}
+                    {friend.name.charAt(0)}
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
                       <h3 className="font-semibold text-gray-900">
-                        {friend.title}
+                        {friend.name}
                       </h3>
-                      {friend.isDefault && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                          기본
-                        </span>
-                      )}
                       {selectedFriend?.id === friend.id && (
                         <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
                           선택됨
@@ -78,7 +72,7 @@ export const FriendSelectionModal = ({
                       {friend.description}
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
-                      Bot ID: {friend.botId}
+                      Bot ID: {friend.id}
                     </p>
                   </div>
 
@@ -118,7 +112,7 @@ export const FriendSelectionModal = ({
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-600">
               {selectedFriend
-                ? `${selectedFriend.title}와 대화하기`
+                ? `${selectedFriend.name}와 대화하기`
                 : '친구를 선택해주세요'}
             </p>
             <button

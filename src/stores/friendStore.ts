@@ -1,4 +1,5 @@
-import { DEFAULT_FRIENDS, Friend, getDefaultFriend } from '@/types/friend';
+import { getAllFriends } from '@/services/friend.service';
+import { Friend } from '@/types/friend';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -10,7 +11,7 @@ interface FriendState {
 
   selectFriend: (friend: Friend) => void;
   clearSelectedFriend: () => void;
-  initializeFriend: () => void;
+  loadFriends: () => Promise<void>;
   addFriend: (friend: Friend) => void;
   removeFriend: (friendId: string) => void;
   updateFriend: (friendId: string, updates: Partial<Friend>) => void;
@@ -21,8 +22,8 @@ export const useFriendStore = create<FriendState>()(
   persist(
     (set, get) => ({
       selectedFriend: null,
-      availableFriends: DEFAULT_FRIENDS,
-      isLoading: true,
+      availableFriends: [],
+      isLoading: false,
       error: null,
 
       selectFriend: (friend: Friend) => {
@@ -33,32 +34,17 @@ export const useFriendStore = create<FriendState>()(
         set({ selectedFriend: null });
       },
 
-      initializeFriend: () => {
+      loadFriends: async () => {
         try {
           set({ isLoading: true, error: null });
-
-          const { selectedFriend } = get();
-
-          if (selectedFriend) {
-            const isValidFriend = DEFAULT_FRIENDS.find(
-              f => f.id === selectedFriend.id
-            );
-            if (isValidFriend) {
-              set({ isLoading: false });
-              return;
-            }
-          }
-
-          const defaultFriend = getDefaultFriend();
-          set({ selectedFriend: defaultFriend });
+          const friends = await getAllFriends();
+          set({ availableFriends: friends });
         } catch (error) {
-          console.error('Failed to initialize friend:', error);
+          console.error('Failed to load friends:', error);
           set({
             error:
-              error instanceof Error
-                ? error.message
-                : 'Failed to initialize friend',
-            selectedFriend: getDefaultFriend(),
+              error instanceof Error ? error.message : 'Failed to load friends',
+            availableFriends: [],
           });
         } finally {
           set({ isLoading: false });
@@ -79,7 +65,7 @@ export const useFriendStore = create<FriendState>()(
         const updatedFriends = availableFriends.filter(f => f.id !== friendId);
 
         const newSelectedFriend =
-          selectedFriend?.id === friendId ? getDefaultFriend() : selectedFriend;
+          selectedFriend?.id === friendId ? null : selectedFriend;
 
         set({
           availableFriends: updatedFriends,

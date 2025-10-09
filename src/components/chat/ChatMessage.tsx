@@ -28,15 +28,15 @@ export const ChatMessage = ({ message, currentUser }: ChatMessageProps) => {
       <div
         className={`flex max-w-xs lg:max-w-md ${isUser ? 'flex-row-reverse' : 'flex-row'} space-x-2`}
       >
-        <div className={`flex-shrink-0 pl-2 ${isUser ? 'ml-2' : 'mr-2'}`}>
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center`}
-          >
-            <span className="text-xl font-medium">
-              {isUser ? currentUser?.avatar || '' : '👾'}
-            </span>
+        {isUser ? null : (
+          <div className={`flex-shrink-0 pl-2 ${isUser ? 'ml-2' : 'mr-2'}`}>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center`}
+            >
+              <span className="text-xl font-medium">{currentUser?.avatar}</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           className={`rounded-2xl px-4 py-3 relative ${

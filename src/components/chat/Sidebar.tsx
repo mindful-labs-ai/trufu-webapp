@@ -20,7 +20,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={`
           fixed lg:relative z-50 lg:z-auto
@@ -30,7 +29,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         `}
       >
         <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-semibold text-gray-800">Trufu</h1>
@@ -53,10 +51,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 </svg>
               </button>
             </div>
-
-            <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              + New Chat
-            </button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -80,7 +74,6 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 `}
               >
                 <div className="flex items-center space-x-3">
-                  {/* Avatar */}
                   <div
                     className={`
                     w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm
@@ -91,7 +84,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     }
                   `}
                   >
-                    {friend.title.charAt(0)}
+                    {friend?.name?.charAt(0)}
                   </div>
 
                   <div className="flex-1">
@@ -103,13 +96,8 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                             : 'text-gray-800'
                         }`}
                       >
-                        {friend.title}
+                        {friend.name}
                       </h3>
-                      {friend.isDefault && (
-                        <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded font-medium">
-                          기본
-                        </span>
-                      )}
                       {selectedFriend?.id === friend.id && (
                         <span className="px-1.5 py-0.5 bg-green-100 text-green-800 text-xs rounded font-medium">
                           ✓

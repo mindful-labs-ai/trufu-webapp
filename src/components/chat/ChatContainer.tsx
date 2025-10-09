@@ -15,8 +15,6 @@ interface ChatContainerProps {
 export const ChatContainer = ({ user }: ChatContainerProps) => {
   const {
     selectedFriend,
-    selectFriend,
-    availableFriends,
     isLoading: isFriendLoading,
   } = useFriendStore();
 
@@ -27,7 +25,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     historyError,
     sendMessage,
     isReady,
-  } = useChat(user.id.toString(), selectedFriend?.botId || null);
+  } = useChat(user.id.toString(), selectedFriend?.id || null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -168,11 +166,11 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                {selectedFriend?.title.charAt(0) || '💬'}
+                {selectedFriend?.name?.charAt(0) || '💬'}
               </div>
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
                 {selectedFriend
-                  ? `${selectedFriend.title}와 대화하기`
+                  ? `${selectedFriend.name}와 대화하기`
                   : '대화 시작'}
               </h2>
               <p className="text-gray-600 max-w-md">
@@ -182,7 +180,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
               </p>
               {selectedFriend && (
                 <div className="mt-4 text-sm text-gray-500">
-                  💡 Bot ID: {selectedFriend.botId}
+                  💡 Bot ID: {selectedFriend.id}
                 </div>
               )}
             </div>

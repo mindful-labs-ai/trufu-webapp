@@ -18,13 +18,12 @@ export interface ChatMessageRecord {
   chat_hist_id: string;
   bot_id: string;
   user_id: string;
-  sender: string; // 'user' | 'assistant' | 'bot'
+  sender: string; // 'user' | 'assistant'
   messages: string;
   type: string;
   updated_at: string;
 }
 
-// 채팅 히스토리 조회 옵션
 export interface ChatHistoryOptions {
   userId: string;
   botId?: string;

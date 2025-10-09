@@ -11,13 +11,12 @@ export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { currentUser, isLoading, setCurrentUser, initializeUser } =
     useUserStore();
-  const { initializeFriend } = useFriendStore();
+  const { loadFriends } = useFriendStore();
 
-  // 앱 시작 시 사용자와 친구 초기화
   useEffect(() => {
     initializeUser();
-    initializeFriend();
-  }, [initializeUser, initializeFriend]);
+    loadFriends();
+  }, [initializeUser, loadFriends]);
 
   if (isLoading || !currentUser) {
     return (

@@ -57,10 +57,9 @@ export const useUserStore = create<UserState>()(
             return;
           }
 
-          // 사용자 목록 로드
           await get().loadUsers();
 
-          // 첫 번째 사용자를 기본값으로 설정
+          // FIXME: 임시로 첫 번째 유저를 currentUser로 설정
           const { users } = get();
           if (users.length > 0) {
             set({ currentUser: users[0] });
