@@ -13,10 +13,7 @@ interface ChatContainerProps {
 }
 
 export const ChatContainer = ({ user }: ChatContainerProps) => {
-  const {
-    selectedFriend,
-    isLoading: isFriendLoading,
-  } = useFriendStore();
+  const { selectedFriend, isLoading: isFriendLoading } = useFriendStore();
 
   const {
     messages,
@@ -220,17 +217,14 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                 </div>
               </div>
             )}
-            {/* 스크롤 타겟 요소 */}
             <div ref={messagesEndRef} />
           </div>
         )}
-        {/* 메시지가 없을 때도 스크롤 타겟 유지 */}
         {!isLoadingHistory && messages.length === 0 && (
           <div ref={messagesEndRef} />
         )}
       </div>
 
-      {/* 맨 아래로 스크롤 버튼 */}
       {isUserScrolling && !shouldAutoScroll && (
         <div className="absolute bottom-20 right-6 z-10">
           <button

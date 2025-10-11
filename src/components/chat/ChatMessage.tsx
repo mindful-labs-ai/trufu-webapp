@@ -2,6 +2,7 @@
 
 import { Message } from '@/types/chat';
 import { User } from '@/types/user';
+import { parseSimpleMarkdown, sanitizeHtml } from '@/utils/markdown';
 import { useState } from 'react';
 import { WorkflowStatsModal } from './WorkflowStatsModal';
 
@@ -66,9 +67,12 @@ export const ChatMessage = ({ message, currentUser }: ChatMessageProps) => {
             </button>
           )}
 
-          <p className="text-sm leading-relaxed whitespace-pre-wrap pr-10">
-            {message.content}
-          </p>
+          <div
+            className="text-sm leading-relaxed pr-10 [&>p]:mb-2 [&>p:last-child]:mb-0 [&>h1]:text-lg [&>h1]:font-bold [&>h2]:text-base [&>h2]:font-semibold [&>h3]:text-sm [&>h3]:font-medium [&>code]:text-xs [&>pre]:text-xs"
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHtml(parseSimpleMarkdown(message.content)),
+            }}
+          />
           <p
             className={`text-xs mt-2 ${
               isUser ? 'text-blue-100' : 'text-gray-500'
