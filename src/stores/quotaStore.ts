@@ -51,7 +51,7 @@ export const useQuotaStore = create<QuotaStore>((set, get) => ({
         updating: false,
         usage: resp.usage,
         limit: resp.limit,
-        remaining: resp.remaining,
+        remaining: resp.limit - resp.usage,
       });
       return resp;
     } catch (e: any) {
@@ -71,7 +71,7 @@ export const useQuotaStore = create<QuotaStore>((set, get) => ({
         updating: false,
         usage: resp.usage,
         limit: resp.limit,
-        remaining: resp.remaining,
+        remaining: resp.limit - resp.usage,
       });
       return resp;
     } catch (e: any) {
@@ -98,9 +98,7 @@ export const useQuotaStore = create<QuotaStore>((set, get) => ({
     const result = await action();
     const finalAmount = Math.max(
       0,
-      Math.floor(
-        opts?.finalizeAmount ? opts.finalizeAmount(result) : planAmount
-      )
+      Math.ceil(opts?.finalizeAmount ? opts.finalizeAmount(result) : planAmount)
     );
     await get().consume(type, finalAmount);
     return result;

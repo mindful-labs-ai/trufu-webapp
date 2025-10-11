@@ -12,7 +12,6 @@ export type QuotaResp = {
   type: string;
   usage: number;
   limit: number;
-  remaining: number;
   request_amount?: number;
   allowed?: boolean;
   consumed?: number;
