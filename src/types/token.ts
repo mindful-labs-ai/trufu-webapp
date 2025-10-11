@@ -1,14 +1,14 @@
-export type QuotaMode = 'check' | 'consume';
+export type TokenMode = 'check' | 'consume';
 
-export type QuotaBody = {
+export type TokenBody = {
   type: string;
   amount: number;
-  mode?: QuotaMode;
+  mode?: TokenMode;
 };
 
-export type QuotaResp = {
+export type TokenResp = {
   ok: boolean;
-  mode: QuotaMode;
+  mode: TokenMode;
   type: string;
   usage: number;
   limit: number;

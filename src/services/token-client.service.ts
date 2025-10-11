@@ -1,9 +1,9 @@
-import type { QuotaBody, QuotaResp } from '@/types/quota';
+import type { TokenBody, TokenResp } from '@/types/token';
 import { supabase } from '@/lib/supabase';
 
-const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/token-quota-guard`;
+const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/token-token-guard`;
 
-export const callQuotaGuard = async (body: QuotaBody): Promise<QuotaResp> => {
+export const callTokenGuard = async (body: TokenBody): Promise<TokenResp> => {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -18,8 +18,8 @@ export const callQuotaGuard = async (body: QuotaBody): Promise<QuotaResp> => {
     body: JSON.stringify(body),
   });
 
-  const json = (await response.json()) as QuotaResp | { error: string };
+  const json = (await response.json()) as TokenResp | { error: string };
   if (!response.ok)
-    throw new Error((json as any).error || 'quota_guard_failed');
-  return json as QuotaResp;
+    throw new Error((json as any).error || 'token_guard_failed');
+  return json as TokenResp;
 };
