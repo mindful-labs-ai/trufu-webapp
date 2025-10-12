@@ -1,5 +1,6 @@
 'use client';
 
+import { BetaUserInfo } from '@/components/auth/BetaUserInfo';
 import { ChatContainer } from '@/components/chat/ChatContainer';
 import { Header } from '@/components/chat/Header';
 import { Sidebar } from '@/components/chat/Sidebar';
@@ -30,16 +31,19 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="flex h-screen bg-gray-50 flex-col">
+      <BetaUserInfo />
+      <div className="flex flex-1">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col">
-        <Header
-          onMenuClick={() => setSidebarOpen(true)}
-          user={currentUser}
-          onUserChange={setCurrentUser}
-        />
-        <ChatContainer user={currentUser} />
+        <div className="flex-1 flex flex-col">
+          <Header
+            onMenuClick={() => setSidebarOpen(true)}
+            user={currentUser}
+            onUserChange={setCurrentUser}
+          />
+          <ChatContainer user={currentUser} />
+        </div>
       </div>
     </div>
   );
