@@ -2,15 +2,10 @@ import { BetaAccessTokenService } from '@/domain/services/beta-access-token.serv
 import { SupabaseBetaAccessTokenRepository } from '@/infrastructure/repositories/supabase-beta-access-token.repository';
 import { JwtService } from '@/infrastructure/services/jwt.service';
 import { TokenGeneratorService } from '@/infrastructure/services/token-generator.service';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
 function createBetaAccessService() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
   const repository = new SupabaseBetaAccessTokenRepository(supabase);
   const jwtService = new JwtService();
   const tokenGenerator = new TokenGeneratorService();

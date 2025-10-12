@@ -5,7 +5,6 @@ import { TokenGeneratorService } from '@/infrastructure/services/token-generator
 import { supabase } from '@/lib/supabase';
 import { NextRequest, NextResponse } from 'next/server';
 
-// 서비스 인스턴스 생성
 function createBetaAccessService() {
   const repository = new SupabaseBetaAccessTokenRepository(supabase);
   const jwtService = new JwtService();

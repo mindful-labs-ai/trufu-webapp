@@ -1,18 +1,12 @@
 import { useRouter } from 'next/navigation';
 
-// 리다이렉션이 필요하지 않은 공개 경로들
+// 리다이렉션하지 않은 경로
 const PUBLIC_PATHS = ['/beta-login', '/help', '/api', '/_next', '/favicon.ico'];
 
-/**
- * 현재 경로가 공개 경로인지 확인
- */
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(path => pathname.startsWith(path));
 }
 
-/**
- * 베타 로그인 페이지로 리다이렉션
- */
 export function redirectToBetaLogin(
   router: ReturnType<typeof useRouter>,
   currentPath?: string
