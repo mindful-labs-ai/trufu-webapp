@@ -1,64 +1,47 @@
+'use client';
+
 import { create } from 'zustand';
-import type { TokenResp } from '@/types/token.ts';
-import { callTokenGuard } from '@/services/token-client.service';
+import type { TokenResp } from '@/types/token';
+import { getCredit, consumeCredit } from '@/services/token-client.service';
 
 export interface TokenStatus {
-  usage: number;
-  limit: number;
-  remaining: number;
+  credit: number;
   updating: boolean;
   error?: string;
 }
-
-const initStatus: TokenStatus = {
-  usage: 0,
-  limit: 0,
-  remaining: 0,
-  updating: false,
-};
+const initStatus: TokenStatus = { credit: 0, updating: false };
 
 export interface WithTokenOpts<T> {
-  finalizeAmount: (result: T) => number;
+  finalizeAmount?: (result: T) => number;
 }
 
 export interface TokenStore {
   byType: Record<string, TokenStatus>;
-  check(type: string, amount: number): Promise<TokenResp>;
+  check(type: string): Promise<TokenResp>;
   consume(type: string, amount: number): Promise<TokenResp>;
   withToken<T>(
     type: string,
     planAmount: number,
     action: () => Promise<T>,
-    opts: WithTokenOpts<T>
+    opts?: WithTokenOpts<T>
   ): Promise<T>;
-
   statusOf(type: string): TokenStatus;
-
   reset(): void;
-
-  /** @internal: 저수준 상태 패치(외부 직접 호출 지양) */
   _setStatus(type: string, patch: Partial<TokenStatus>): void;
 }
 
 export const useTokenStore = create<TokenStore>((set, get) => ({
   byType: {},
 
-  check: async (type, amount) => {
+  check: async type => {
     get()._setStatus(type, { updating: true, error: undefined });
     try {
-      const resp = await callTokenGuard({ type, amount, mode: 'check' });
-      get()._setStatus(type, {
-        updating: false,
-        usage: resp.usage,
-        limit: resp.limit,
-        remaining: resp.limit - resp.usage,
-      });
+      const resp = await getCredit(type);
+      get()._setStatus(type, { updating: false, credit: resp.credit });
       return resp;
-    } catch (e: any) {
-      get()._setStatus(type, {
-        updating: false,
-        error: e?.message || 'token_check_failed',
-      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'token_check_failed';
+      get()._setStatus(type, { updating: false, error: msg });
       throw e;
     }
   },
@@ -66,33 +49,26 @@ export const useTokenStore = create<TokenStore>((set, get) => ({
   consume: async (type, amount) => {
     get()._setStatus(type, { updating: true, error: undefined });
     try {
-      const resp = await callTokenGuard({ type, amount, mode: 'consume' });
-      get()._setStatus(type, {
-        updating: false,
-        usage: resp.usage,
-        limit: resp.limit,
-        remaining: resp.limit - resp.usage,
-      });
+      const resp = await consumeCredit(type, amount);
+      get()._setStatus(type, { updating: false, credit: resp.credit });
       return resp;
-    } catch (e: any) {
-      get()._setStatus(type, {
-        updating: false,
-        error: e?.message || 'token_consume_failed',
-      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'token_consume_failed';
+      get()._setStatus(type, { updating: false, error: msg });
       throw e;
     }
   },
 
-  withToken: async <T>(
+  withToken: (async <T>(
     type: string,
     planAmount: number,
     action: () => Promise<T>,
-    opts: WithTokenOpts<T>
-  ) => {
-    const pre = await get().check(type, planAmount);
-    if (!pre.ok || pre.allowed === false) {
-      const err: any = new Error('token_exceeded');
-      err.code = 'token_exceeded';
+    opts?: WithTokenOpts<T>
+  ): Promise<T> => {
+    const pre = await get().check(type);
+    if (!pre.ok || pre.credit <= 0) {
+      const err = new Error('no_credit') as Error & { code?: string };
+      err.code = 'no_credit';
       throw err;
     }
     const result = await action();
@@ -102,7 +78,7 @@ export const useTokenStore = create<TokenStore>((set, get) => ({
     );
     await get().consume(type, finalAmount);
     return result;
-  },
+  }) as TokenStore['withToken'],
 
   statusOf: type => get().byType[type] ?? initStatus,
 
