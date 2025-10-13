@@ -99,6 +99,14 @@ const ProcessedDataSummary = ({ stats }: BaseTabProps) => (
           value={`${stats.subjectDataSummary.extractedMemory.extractedCount || 0}개 항목`}
         />
       )}
+      {stats.subjectDataSummary.affinity && (
+        <div className="bg-white rounded p-3">
+          <span className="font-medium">
+            💖 친밀도: Level {stats.subjectDataSummary.affinity.currentLevel} (
+            {stats.subjectDataSummary.affinity.currentProgress}%)
+          </span>
+        </div>
+      )}
     </div>
   </div>
 );

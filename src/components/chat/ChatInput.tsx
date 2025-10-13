@@ -68,11 +68,6 @@ export const ChatInput = ({
             </svg>
           </button>
         </form>
-
-        <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
-          <span>Press Shift + Enter for new line</span>
-          <span>Enter to send</span>
-        </div>
       </div>
     </div>
   );

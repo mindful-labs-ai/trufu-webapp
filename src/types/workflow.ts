@@ -82,12 +82,23 @@ export interface ExtractedMemorySubjectData {
   };
 }
 
+export interface AffinitySubjectData {
+  currentLevel: number;
+  currentProgress: number;
+  previousLevel?: number;
+  previousProgress?: number;
+  levelUp: boolean;
+  progressIncrease: number;
+  conversationId: number;
+}
+
 export interface SubjectDataSummary {
   chatHistory: ChatHistorySubjectData | null;
   memory: MemorySubjectData | null;
   prompt: PromptSubjectData | null;
   response: ResponseSubjectData | null;
   extractedMemory: ExtractedMemorySubjectData | null;
+  affinity: AffinitySubjectData | null;
 }
 
 export interface TimelineData {
@@ -123,6 +134,7 @@ export interface WorkflowAnalyticsData {
     memory?: { totalItems: number };
     response?: { responseLength: number };
     extractedMemory?: { extractedCount: number };
+    affinity?: { currentLevel: number; currentProgress: number };
   };
 }
 
