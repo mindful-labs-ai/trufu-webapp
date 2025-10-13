@@ -133,7 +133,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
           <ChatContainerHeader
             user={user}
             chatbot={selectedFriend}
-            className="max-w-4xl mx-auto"
+            messageCount={messages.length}
           />
         </div>
       )}

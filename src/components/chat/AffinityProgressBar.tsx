@@ -1,44 +1,27 @@
 'use client';
 
+import { useAffinity } from '@/hooks/useAffinity';
 import { AffinityService } from '@/services/affinity.service';
-import { Affinity, AFFINITY_LEVELS } from '@/types/affinity';
-import { useEffect, useState } from 'react';
+import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
+import { useState } from 'react';
 
 interface AffinityProgressBarProps {
   userId: string;
   botId: string;
-  className?: string;
+  messageCount?: number; // AI 응답 시 증가하는 메시지 수
 }
 
 export function AffinityProgressBar({
   userId,
   botId,
-  className = '',
+  messageCount = 0,
 }: AffinityProgressBarProps) {
-  const [affinity, setAffinity] = useState<Affinity | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId || !botId) return;
-
-    const loadAffinity = async () => {
-      setIsLoading(true);
-      try {
-        const affinityData = await AffinityService.getAffinity(userId, botId);
-        setAffinity(affinityData);
-      } catch (error) {
-        console.error('Failed to load affinity:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAffinity();
-  }, [userId, botId]);
+  const { affinity, isLoading } = useAffinity({ userId, botId, messageCount });
+  const [showModal, setShowModal] = useState(false);
 
   if (isLoading) {
     return (
-      <div className={`animate-pulse ${className}`}>
+      <div className={`animate-pulse max-w-4xl mx-auto`}>
         <div className="h-4 bg-gray-200 rounded w-24"></div>
       </div>
     );
@@ -48,79 +31,75 @@ export function AffinityProgressBar({
 
   const levelInfo = AFFINITY_LEVELS[affinity.affinity];
   const progress = AffinityService.calculateProgressToNextLevel(affinity);
-  const increaseRange = AffinityService.getAffinityIncreaseRange(
-    affinity.affinity
-  );
 
   return (
-    <div className={`flex items-center space-x-2 w-full ${className}`}>
-      <span className="text-lg">{levelInfo.emoji}</span>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-gray-900">
-          친밀도 {affinity.affinity}
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="flex-1 bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress.progressPercent}%` }}
-            />
+    <>
+      <div
+        className={`flex items-center space-x-2 w-full cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors`}
+        onClick={() => setShowModal(true)}
+      >
+        <span className="text-lg">{levelInfo.emoji}</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium text-gray-900">
+            친밀도 {affinity.affinity}
           </div>
-          <span className="text-xs text-gray-500 min-w-0">
-            {Math.round(progress.progressPercent)}%
-          </span>
+          <div className="flex items-center space-x-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress.progressPercent}%` }}
+              />
+            </div>
+            <span className="text-xs text-gray-500 min-w-0">
+              {Math.round(progress.progressPercent)}%
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="bg-white rounded-lg max-w-md w-full mx-4 p-8"
+            onClick={e => e.stopPropagation()}
+          >
+            <AffinityDetail
+              affinity={affinity}
+              levelInfo={levelInfo}
+              progress={progress}
+            />
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-export function AffinityModal({
-  userId,
-  botId,
-  className = '',
-}: AffinityProgressBarProps) {
-  const [affinity, setAffinity] = useState<Affinity | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId || !botId) return;
-
-    const loadAffinity = async () => {
-      setIsLoading(true);
-      try {
-        const affinityData = await AffinityService.getAffinity(userId, botId);
-        setAffinity(affinityData);
-      } catch (error) {
-        console.error('Failed to load affinity:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAffinity();
-  }, [userId, botId]);
-
-  if (isLoading) {
-    return (
-      <div className={`animate-pulse ${className}`}>
-        <div className="h-4 bg-gray-200 rounded w-24"></div>
-      </div>
-    );
-  }
-
-  if (!affinity) return null;
-
-  const levelInfo = AFFINITY_LEVELS[affinity.affinity];
-  const progress = AffinityService.calculateProgressToNextLevel(affinity);
+export function AffinityDetail({
+  affinity,
+  levelInfo,
+  progress,
+}: {
+  affinity: Affinity;
+  levelInfo: AffinityLevelInfo;
+  progress: { progressPercent: number; isMaxLevel: boolean };
+}) {
   const increaseRange = AffinityService.getAffinityIncreaseRange(
     affinity.affinity
   );
-
   return (
-    <div
-      className={`bg-white rounded-lg p-4 border border-gray-200 ${className}`}
-    >
+    <>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-3">
           <span className="text-2xl">{levelInfo.emoji}</span>
@@ -144,7 +123,7 @@ export function AffinityModal({
             {progress.isMaxLevel ? '최고 레벨!' : `다음 레벨까지`}
           </span>
           <span className="font-medium">
-            {Math.round(progress.progressPercent)}%
+            {Math.floor(progress.progressPercent)}%
             {!progress.isMaxLevel && ' / 100%'}
           </span>
         </div>
@@ -166,6 +145,6 @@ export function AffinityModal({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

@@ -7,15 +7,13 @@ import { AffinityProgressBar } from './AffinityProgressBar';
 interface ChatContainerHeaderProps {
   user: User;
   chatbot: Chatbot;
-  className?: string;
-  compact?: boolean;
+  messageCount?: number;
 }
 
 export function ChatContainerHeader({
   user,
   chatbot,
-  className,
-  compact,
+  messageCount = 0,
 }: ChatContainerHeaderProps) {
   return (
     <div className="flex flex-col items-center space-x-4">
@@ -25,7 +23,7 @@ export function ChatContainerHeader({
       <AffinityProgressBar
         userId={user.id.toString()}
         botId={chatbot.id}
-        className={className}
+        messageCount={messageCount}
       />
     </div>
   );
