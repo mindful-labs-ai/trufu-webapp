@@ -1,4 +1,4 @@
-export interface Friend {
+export interface Chatbot {
   id: string;
   name: string;
   description: string;
@@ -7,3 +7,5 @@ export interface Friend {
   created_at: string;
   updated_at: string;
 }
+
+export interface Friend extends Chatbot {}

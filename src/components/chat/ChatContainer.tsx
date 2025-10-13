@@ -4,6 +4,7 @@ import { useChat } from '@/hooks/useChat';
 import { useFriendStore } from '@/stores/friendStore';
 import { User } from '@/types/user';
 import { useEffect, useRef, useState } from 'react';
+import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 import { DateSeparator } from './DateSeparator';
@@ -127,6 +128,16 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
   return (
     <div className="flex-1 flex flex-col h-full relative">
+      {selectedFriend && messages.length > 0 && (
+        <div className="border-b border-gray-200 p-3 bg-white">
+          <ChatContainerHeader
+            user={user}
+            chatbot={selectedFriend}
+            className="max-w-4xl mx-auto"
+          />
+        </div>
+      )}
+
       <div
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
@@ -172,14 +183,9 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
               </h2>
               <p className="text-gray-600 max-w-md">
                 {selectedFriend
-                  ? `${selectedFriend.description}. 아래에 메시지를 입력하여 대화를 시작해보세요.`
+                  ? '아래에 메시지를 입력하여 대화를 시작해보세요.'
                   : '대화할 친구를 선택해주세요.'}
               </p>
-              {selectedFriend && (
-                <div className="mt-4 text-sm text-gray-500">
-                  💡 Bot ID: {selectedFriend.id}
-                </div>
-              )}
             </div>
           </div>
         ) : (

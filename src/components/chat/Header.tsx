@@ -82,7 +82,6 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
       </div>
 
       <div className="flex items-center space-x-4">
-        {/* User Selector */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
