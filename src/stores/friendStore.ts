@@ -1,11 +1,11 @@
 import { getAllFriends } from '@/services/friend.service';
-import { Friend } from '@/types/friend';
+import { Chatbot, Friend } from '@/types/friend';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface FriendState {
-  selectedFriend: Friend | null;
-  availableFriends: Friend[];
+  selectedFriend: Chatbot | Friend | null; // TODO: Chatbot으로 타입 변경
+  availableFriends: Friend[]; // TODO: Chatbot으로 타입 변경
   isLoading: boolean;
   error: string | null;
 
