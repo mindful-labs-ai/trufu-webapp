@@ -45,7 +45,6 @@ export class JwtService implements IJwtService {
       email:
         payload.email || `beta-user-${payload.sub.slice(0, 8)}@beta.trufu.com`,
       phone: '',
-      // TODO: session_id 추가
       app_metadata: {
         provider: 'beta',
         providers: ['beta'],
@@ -70,7 +69,9 @@ export class JwtService implements IJwtService {
       });
     } catch (error) {
       throw new Error(
-        `JWT verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `JWT verification failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
       );
     }
   }
@@ -128,7 +129,6 @@ export class JwtService implements IJwtService {
         role: 'authenticated',
       });
 
-      // FIXME: 세션 설정 안되고 있음
       const sessionResult = await this.setSupabaseSession(jwtToken);
       if (!sessionResult.success) {
         return {

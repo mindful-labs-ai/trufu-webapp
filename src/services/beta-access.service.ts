@@ -1,5 +1,6 @@
 import { JwtService } from '../infrastructure/services/jwt.service';
 import { TokenValidationResult } from '../types/beta-access';
+import { supabase } from '@/lib/supabase';
 
 export class BetaAccessService {
   private jwtService: JwtService;
@@ -17,59 +18,44 @@ export class BetaAccessService {
     error?: string;
   }> {
     try {
-      // 1. 서버 API를 통해 베타 토큰 인증 및 JWT 생성
-      const response = await fetch('/api/beta-access/login', {
+      // 1) 서버에서 OTP 발급 받기
+      const r = await fetch('/api/beta-access/session', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ authToken }),
       });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        return {
-          success: false,
-          error: result.error || '인증에 실패했습니다.',
-        };
+      const j = await r.json();
+      if (!r.ok || !j?.success) {
+        return { success: false, error: j?.error || '세션 발급 실패' };
       }
 
-      // 2. JWT 서비스를 통해 Supabase 세션 설정
-      const sessionResult = await this.jwtService.setSupabaseSession(
-        result.data.jwtToken
-      );
+      const { email, email_otp } = j.data;
 
-      if (!sessionResult.success) {
-        return {
-          success: false,
-          error: sessionResult.error || 'Supabase 세션 설정에 실패했습니다.',
-        };
-      }
+      // 2) 브라우저에서 OTP 검증 -> 진짜 Supabase 세션 생성
+      const { data: verified, error: verr } = await supabase.auth.verifyOtp({
+        type: 'magiclink',
+        email,
+        token: email_otp,
+      });
+      if (verr) return { success: false, error: verr.message };
 
-      // 3. 로그인 성공 후 사용자 정보 확인
-      const user = await this.getCurrentUser();
-      if (!user) {
-        console.warn('Login successful but user info not available');
-      } else {
-        console.log('Login successful, user:', {
-          id: user.id,
-          email: user.email,
-        });
-      }
+      // 3) 세션 확인 및 토큰 저장
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return { success: false, error: '세션 생성 실패' };
 
       return {
         success: true,
         data: {
-          userId: result.data.userId,
-          jwtToken: result.data.jwtToken,
+          userId: verified.user?.id ?? '',
+          jwtToken: session.access_token,
         },
       };
-    } catch (error) {
+    } catch (e) {
       return {
         success: false,
-        error:
-          error instanceof Error ? error.message : '로그인에 실패했습니다.',
+        error: e instanceof Error ? e.message : '로그인에 실패했습니다.',
       };
     }
   }
@@ -118,7 +104,10 @@ export class BetaAccessService {
    * 현재 사용자 정보를 가져옵니다
    */
   async getCurrentUser() {
-    return await this.jwtService.getCurrentUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user ? { id: user.id, email: user.email } : null;
   }
 
   /**
@@ -146,14 +135,18 @@ export class BetaAccessService {
    * 세션이 유효한지 확인합니다
    */
   async isSessionValid(): Promise<boolean> {
-    return await this.jwtService.isSessionValid();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return !!session;
   }
 
   /**
    * 세션을 새로고침합니다
    */
-  async refreshSession(): Promise<{ success: boolean; error?: string }> {
-    return await this.jwtService.refreshSession();
+  async refreshSession() {
+    const { error } = await supabase.auth.refreshSession();
+    return error ? { success: false, error: error.message } : { success: true };
   }
 
   /**
