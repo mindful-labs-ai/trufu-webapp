@@ -16,10 +16,7 @@ export default function EmailLoginPage() {
   }, [currentUser, router]);
 
   const handleLoginSuccess = () => {
-    console.log('이메일 로그인 성공');
-    setTimeout(() => {
-      router.push('/');
-    }, 1000);
+    window.location.reload(); // TODO: URL에 query param으로 어디서 왔는지 명시해서, 로그인 성공 시 리다이렉트
   };
 
   const handleLoginError = (error: string) => {
