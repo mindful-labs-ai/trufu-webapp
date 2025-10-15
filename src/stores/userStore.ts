@@ -1,91 +1,80 @@
-import { getAllUsers } from '@/services/user.service';
-import { User } from '@/types/user';
+'use client';
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
 
-interface UserState {
-  currentUser: User | null;
-  users: User[];
-  isLoading: boolean;
-  isLoadingUsers: boolean;
-  error: string | null;
-
-  setCurrentUser: (user: User) => void;
-  loadUsers: () => Promise<void>;
-  initializeUser: () => Promise<void>;
-  clearError: () => void;
+export interface CurrentUser {
+  id: string;
+  email?: string;
+  isAdmin: boolean;
+  object: User;
 }
 
-export const useUserStore = create<UserState>()(
+interface UserStore {
+  me: CurrentUser | null;
+  isLoading: boolean;
+  error?: string;
+
+  /** 최초/재조회 */
+  initialize: () => Promise<void>;
+  /** 서버에서 claims 갱신 필요 시(예: 관리자 권한 토글 후) */
+  refresh: () => Promise<void>;
+  /** 메모리/스토리지 초기화 */
+  clear: () => void;
+
+  /** 파생 헬퍼 */
+  isAuthenticated: () => boolean;
+  isAdmin: () => boolean;
+}
+
+export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
-      currentUser: null,
-      users: [],
-      isLoading: true,
-      isLoadingUsers: false,
-      error: null,
+      me: null,
+      isLoading: false,
+      error: undefined,
 
-      setCurrentUser: (user: User) => {
-        set({ currentUser: user });
-      },
-
-      loadUsers: async () => {
+      initialize: async () => {
+        set({ isLoading: true, error: undefined });
         try {
-          set({ isLoadingUsers: true, error: null });
-          const userData = await getAllUsers();
-          set({ users: userData });
-        } catch (error) {
-          console.error('Failed to load users:', error);
-          set({
-            error:
-              error instanceof Error ? error.message : 'Failed to load users',
-            users: [],
-          });
-        } finally {
-          set({ isLoadingUsers: false });
-        }
-      },
-
-      initializeUser: async () => {
-        try {
-          set({ isLoading: true, error: null });
-          const { currentUser } = get();
-
-          if (currentUser) {
-            await get().loadUsers();
-            set({ isLoading: false });
+          const { data, error } = await supabase.auth.getUser();
+          if (error || !data?.user) {
+            set({ me: null, isLoading: false, error: error?.message });
             return;
           }
+          const u = data.user;
+          const isAdmin = Boolean(u.role === 'admin');
 
-          await get().loadUsers();
-
-          // FIXME: 임시로 첫 번째 유저를 currentUser로 설정
-          const { users } = get();
-          if (users.length > 0) {
-            set({ currentUser: users[0] });
-          }
-        } catch (error) {
-          console.error('Failed to initialize user:', error);
           set({
-            error:
-              error instanceof Error
-                ? error.message
-                : 'Failed to initialize user',
+            me: { id: u.id, email: u.email ?? undefined, isAdmin, object: u },
+            isLoading: false,
           });
-        } finally {
-          set({ isLoading: false });
+        } catch (e: any) {
+          set({
+            me: null,
+            isLoading: false,
+            error: e?.message || 'init_failed',
+          });
         }
       },
 
-      // 에러 클리어
-      clearError: () => {
-        set({ error: null });
+      refresh: async () => {
+        // 세션/클레임 갱신 → 다시 initialize
+        await supabase.auth.refreshSession();
+        await get().initialize();
       },
+
+      clear: () => set({ me: null, isLoading: false, error: undefined }),
+
+      isAuthenticated: () => Boolean(get().me),
+      isAdmin: () => Boolean(get().me?.isAdmin),
     }),
     {
-      name: 'trufu-user-storage', // localStorage 키
-      partialize: state => ({
-        currentUser: state.currentUser, // currentUser만 영구 저장
+      name: 'trufu-user', // localStorage key
+      partialize: s => ({
+        me: s.me, // me만 저장해서 재방문시 바로 UI 가드 가능
       }),
     }
   )
