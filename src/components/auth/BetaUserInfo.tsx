@@ -3,9 +3,12 @@
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useBetaAccessStore } from '../../stores/betaAccessStore';
+import { supabase } from '@/lib/supabase';
+import { useUserStore } from '@/stores/userStore';
 
 export const BetaUserInfo: React.FC = () => {
   const { isAuthenticated, user, logout } = useBetaAccessStore();
+  const clear = useUserStore(s => s.clear);
   const router = useRouter();
 
   if (!isAuthenticated) {
@@ -16,6 +19,8 @@ export const BetaUserInfo: React.FC = () => {
     const confirmed = confirm('로그아웃하시겠습니까?');
     if (confirmed) {
       await logout();
+      await supabase.auth.signOut();
+      clear();
       router.push('/beta-login');
     }
   };
