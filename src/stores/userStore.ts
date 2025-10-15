@@ -12,14 +12,19 @@ export interface CurrentUser {
   object: User;
 }
 
+interface InitializeOptions {
+  force?: boolean;
+}
+
 interface UserStore {
   me: CurrentUser | null;
   isLoading: boolean;
   isInitialized: boolean;
   error?: string;
 
-  initialize: () => Promise<void>;
+  initialize: (options?: InitializeOptions) => Promise<void>;
   refresh: () => Promise<void>;
+  logout: () => Promise<void>;
   clear: () => void;
 
   isAuthenticated: () => boolean;
@@ -34,8 +39,9 @@ export const useUserStore = create<UserStore>()(
       isInitialized: false,
       error: undefined,
 
-      initialize: async () => {
-        if (get().isInitialized) {
+      initialize: async (options?: InitializeOptions) => {
+        const force = options?.force ?? false;
+        if (!force && get().isInitialized) {
           return;
         }
 
@@ -71,7 +77,28 @@ export const useUserStore = create<UserStore>()(
 
       refresh: async () => {
         await supabase.auth.refreshSession();
-        await get().initialize();
+        await get().initialize({ force: true });
+      },
+
+      logout: async () => {
+        set({ isLoading: true, error: undefined });
+        try {
+          const { error } = await supabase.auth.signOut();
+          if (error) {
+            throw error;
+          }
+          set({
+            me: null,
+            isLoading: false,
+            isInitialized: true,
+          });
+        } catch (e: any) {
+          set({
+            isLoading: false,
+            error: e?.message || 'logout_failed',
+          });
+          throw e;
+        }
       },
 
       clear: () =>

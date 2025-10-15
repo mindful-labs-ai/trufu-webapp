@@ -1,6 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
+import { useUserStore } from '@/stores/userStore';
 import React, { useState } from 'react';
 
 interface EmailPasswordLoginProps {
@@ -12,6 +13,7 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
   onSuccess,
   onError,
 }) => {
+  const initializeUser = useUserStore(s => s.initialize);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +45,7 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
         throw new Error('로그인에 실패했습니다.');
       }
 
+      await initializeUser({ force: true });
       onSuccess?.();
       setError(null);
     } catch (err) {

@@ -11,6 +11,8 @@ interface HeaderProps {
 export const Header = ({ onMenuClick }: HeaderProps) => {
   const { selectedFriend } = useFriendStore();
   const me = useUserStore(s => s.me);
+  const logout = useUserStore(s => s.logout);
+  const isUserLoading = useUserStore(s => s.isLoading);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +31,16 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Failed to logout', error);
+    } finally {
+      setIsProfileOpen(false);
+    }
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 p-4 h-16 flex items-center justify-between">
@@ -79,6 +91,13 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
               </div>
               <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                 프로필 설정
+              </button>
+              <button
+                onClick={handleLogout}
+                disabled={isUserLoading}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                로그아웃
               </button>
             </div>
           )}
