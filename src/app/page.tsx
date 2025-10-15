@@ -8,8 +8,9 @@ import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { currentUser, isLoading, setCurrentUser, initializeUser } =
-    useUserStore();
+  const initializeUser = useUserStore(s => s.initialize);
+  const currentUser = useUserStore(s => s.me);
+  const isLoading = useUserStore(s => s.isLoading);
 
   useEffect(() => {
     initializeUser();
@@ -27,17 +28,15 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="flex h-screen bg-gray-50 flex-col overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col">
-        <Header
-          onMenuClick={() => setSidebarOpen(true)}
-          user={currentUser}
-          onUserChange={setCurrentUser}
-        />
-        <div className="flex-1 overflow-hidden">
-          <ChatContainer user={currentUser} />
+        <div className="flex-1 flex flex-col">
+          <Header onMenuClick={() => setSidebarOpen(true)} />
+          <div className="flex-1 overflow-hidden">
+            <ChatContainer user={currentUser} />
+          </div>
         </div>
       </div>
     </div>

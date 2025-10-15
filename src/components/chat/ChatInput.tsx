@@ -30,7 +30,7 @@ export const ChatInput = ({
 
   return (
     <div className="border-t border-gray-200 bg-white p-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-[720px] mx-auto">
         <form onSubmit={handleSubmit} className="flex space-x-3">
           <div className="flex-1 relative">
             <textarea

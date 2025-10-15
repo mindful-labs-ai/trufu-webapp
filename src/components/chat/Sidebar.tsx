@@ -71,46 +71,29 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 key={friend.id}
                 onClick={() => selectFriend(friend)}
                 className={`
-                  p-3 rounded-lg cursor-pointer border transition-all duration-200
-                  hover:shadow-sm hover:scale-[1.01]
+                  p-3 rounded-lg cursor-pointer transition-colors duration-200
                   ${
                     selectedFriend?.id === friend.id
-                      ? 'border-blue-500 bg-blue-50 shadow-sm'
-                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                      ? 'bg-blue-50'
+                      : 'hover:bg-gray-50'
                   }
                 `}
               >
                 <div className="flex items-center space-x-3">
-                  <div
-                    className={`
-                    w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm
-                    ${
-                      selectedFriend?.id === friend.id
-                        ? 'bg-gradient-to-br from-blue-500 to-purple-600'
-                        : 'bg-gradient-to-br from-gray-400 to-gray-500'
-                    }
-                  `}
-                  >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 font-semibold text-sm">
                     {friend?.name?.charAt(0)}
                   </div>
 
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <h3
-                        className={`font-medium text-sm line-clamp-1 ${
-                          selectedFriend?.id === friend.id
-                            ? 'text-blue-900'
-                            : 'text-gray-800'
-                        }`}
-                      >
-                        {friend.name}
-                      </h3>
-                      {selectedFriend?.id === friend.id && (
-                        <span className="px-1.5 py-0.5 bg-green-100 text-green-800 text-xs rounded font-medium">
-                          ✓
-                        </span>
-                      )}
-                    </div>
+                    <h3
+                      className={`font-medium text-sm line-clamp-1 ${
+                        selectedFriend?.id === friend.id
+                          ? 'text-blue-900'
+                          : 'text-gray-800'
+                      }`}
+                    >
+                      {friend.name}
+                    </h3>
                     <p
                       className={`text-xs mt-1 line-clamp-1 ${
                         selectedFriend?.id === friend.id
