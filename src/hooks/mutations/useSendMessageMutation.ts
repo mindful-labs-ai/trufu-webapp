@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChatService } from '@/services/chat.service';
 import { Message } from '@/types/chat';
-import { chatKeys } from '../queries/useChatHistoryQuery';
+import { QUERY_KEY } from '@/constants/queryKeys';
 
 interface SendMessageParams {
   userId: string;
@@ -20,11 +20,11 @@ export function useSendMessageMutation() {
 
     onMutate: async ({ userId, botId, content }) => {
       await queryClient.cancelQueries({
-        queryKey: chatKeys.history(userId, botId),
+        queryKey: QUERY_KEY.CHAT({ userId, botId }),
       });
 
       const previousMessages = queryClient.getQueryData<Message[]>(
-        chatKeys.history(userId, botId)
+        QUERY_KEY.CHAT({ userId, botId })
       );
 
       const userMessage: Message = {
@@ -35,7 +35,7 @@ export function useSendMessageMutation() {
       };
 
       queryClient.setQueryData<Message[]>(
-        chatKeys.history(userId, botId),
+        QUERY_KEY.CHAT({ userId, botId }),
         old => [...(old || []), userMessage]
       );
 
@@ -51,7 +51,7 @@ export function useSendMessageMutation() {
       };
 
       queryClient.setQueryData<Message[]>(
-        chatKeys.history(userId, botId),
+        QUERY_KEY.CHAT({ userId, botId }),
         old => [...(old || []), assistantMessage]
       );
     },
@@ -61,7 +61,7 @@ export function useSendMessageMutation() {
 
       if (context?.previousMessages) {
         queryClient.setQueryData(
-          chatKeys.history(userId, botId),
+          QUERY_KEY.CHAT({ userId, botId }),
           context.previousMessages
         );
       }
@@ -75,14 +75,14 @@ export function useSendMessageMutation() {
       };
 
       queryClient.setQueryData<Message[]>(
-        chatKeys.history(userId, botId),
+        QUERY_KEY.CHAT({ userId, botId }),
         old => [...(old || []), errorMessage]
       );
     },
 
     onSettled: (data, error, { userId, botId }) => {
       queryClient.invalidateQueries({
-        queryKey: chatKeys.history(userId, botId),
+        queryKey: QUERY_KEY.CHAT({ userId, botId }),
       });
     },
   });

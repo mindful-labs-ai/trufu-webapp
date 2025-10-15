@@ -1,3 +1,4 @@
+import { STORAGE } from '@/constants/storageKeys';
 import { Chatbot, Friend } from '@/types/friend';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -22,7 +23,7 @@ export const useFriendStore = create<FriendState>()(
       },
     }),
     {
-      name: 'trufu-friend-storage',
+      name: STORAGE.FRIENDS,
       partialize: state => ({
         selectedFriend: state.selectedFriend,
       }),

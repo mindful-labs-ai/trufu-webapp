@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ChatService } from '@/services/chat.service';
 import { Message } from '@/types/chat';
+import { QUERY_KEY } from '@/constants/queryKeys';
 
 interface UseChatHistoryQueryParams {
   userId: string | null;
@@ -9,10 +10,12 @@ interface UseChatHistoryQueryParams {
 }
 
 export const chatKeys = {
-  all: ['chat'] as const,
-  histories: () => [...chatKeys.all, 'histories'] as const,
-  history: (userId: string, botId: string) =>
-    [...chatKeys.histories(), { userId, botId }] as const,
+  history: (userId: string, botId: string) => {
+    return {
+      userId,
+      botId,
+    };
+  },
 };
 
 export function useChatHistoryQuery({
@@ -21,7 +24,7 @@ export function useChatHistoryQuery({
   limit = 50,
 }: UseChatHistoryQueryParams) {
   return useQuery<Message[], Error>({
-    queryKey: chatKeys.history(userId || '', botId || ''),
+    queryKey: QUERY_KEY.CHAT({ userId: userId || '', botId: botId || '' }),
     queryFn: async () => {
       if (!userId || !botId) {
         return [];
