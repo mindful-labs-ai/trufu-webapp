@@ -43,16 +43,12 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
         throw new Error('로그인에 실패했습니다.');
       }
 
-      console.log('로그인 성공:', data.user.email);
       onSuccess?.();
-
       setError(null);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
-      console.error('Login failed:', errorMessage);
 
-      // 사용자 친화적인 에러 메시지
       let displayError = errorMessage;
       if (errorMessage.includes('Invalid login credentials')) {
         displayError = '이메일 또는 비밀번호가 올바르지 않습니다.';

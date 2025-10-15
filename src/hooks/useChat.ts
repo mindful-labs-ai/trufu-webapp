@@ -14,33 +14,18 @@ export function useChat(userId: string | null, botId: string | null) {
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!content.trim()) return;
-
-      if (!userId || !botId) {
-        console.warn('Cannot send message: userId or botId is null');
+      if (!content.trim() || !userId || !botId) {
         return;
       }
 
-      try {
-        await sendMessageAsync({
-          userId,
-          botId,
-          content: content.trim(),
-        });
-      } catch (error) {
-        console.error('Failed to send message:', error);
-      }
+      await sendMessageAsync({
+        userId,
+        botId,
+        content: content.trim(),
+      });
     },
     [userId, botId, sendMessageAsync]
   );
-
-  const clearMessages = useCallback(() => {
-    console.warn('clearMessages is deprecated with TanStack Query');
-  }, []);
-
-  const loadChatHistory = useCallback(() => {
-    console.warn('loadChatHistory is deprecated with TanStack Query');
-  }, []);
 
   return {
     messages,
@@ -48,8 +33,6 @@ export function useChat(userId: string | null, botId: string | null) {
     isLoadingHistory,
     historyError: historyError?.message || null,
     sendMessage,
-    clearMessages,
-    loadChatHistory,
     isReady: Boolean(userId && botId),
   };
 }
