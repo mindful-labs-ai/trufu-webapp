@@ -15,16 +15,13 @@ export interface CurrentUser {
 interface UserStore {
   me: CurrentUser | null;
   isLoading: boolean;
+  isInitialized: boolean;
   error?: string;
 
-  /** 최초/재조회 */
   initialize: () => Promise<void>;
-  /** 서버에서 claims 갱신 필요 시(예: 관리자 권한 토글 후) */
   refresh: () => Promise<void>;
-  /** 메모리/스토리지 초기화 */
   clear: () => void;
 
-  /** 파생 헬퍼 */
   isAuthenticated: () => boolean;
   isAdmin: () => boolean;
 }
@@ -34,14 +31,24 @@ export const useUserStore = create<UserStore>()(
     (set, get) => ({
       me: null,
       isLoading: false,
+      isInitialized: false,
       error: undefined,
 
       initialize: async () => {
+        if (get().isInitialized) {
+          return;
+        }
+
         set({ isLoading: true, error: undefined });
         try {
           const { data, error } = await supabase.auth.getUser();
           if (error || !data?.user) {
-            set({ me: null, isLoading: false, error: error?.message });
+            set({
+              me: null,
+              isLoading: false,
+              isInitialized: true,
+              error: error?.message,
+            });
             return;
           }
           const u = data.user;
@@ -50,31 +57,38 @@ export const useUserStore = create<UserStore>()(
           set({
             me: { id: u.id, email: u.email ?? undefined, isAdmin, object: u },
             isLoading: false,
+            isInitialized: true,
           });
         } catch (e: any) {
           set({
             me: null,
             isLoading: false,
+            isInitialized: true,
             error: e?.message || 'init_failed',
           });
         }
       },
 
       refresh: async () => {
-        // 세션/클레임 갱신 → 다시 initialize
         await supabase.auth.refreshSession();
         await get().initialize();
       },
 
-      clear: () => set({ me: null, isLoading: false, error: undefined }),
+      clear: () =>
+        set({
+          me: null,
+          isLoading: false,
+          isInitialized: false,
+          error: undefined,
+        }),
 
       isAuthenticated: () => Boolean(get().me),
       isAdmin: () => Boolean(get().me?.isAdmin),
     }),
     {
-      name: 'trufu-user', // localStorage key
+      name: 'trufu-user',
       partialize: s => ({
-        me: s.me, // me만 저장해서 재방문시 바로 UI 가드 가능
+        me: s.me,
       }),
     }
   )
