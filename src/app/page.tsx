@@ -3,7 +3,6 @@
 import { ChatContainer } from '@/components/chat/ChatContainer';
 import { Header } from '@/components/chat/Header';
 import { Sidebar } from '@/components/chat/Sidebar';
-import { useFriendStore } from '@/stores/friendStore';
 import { useUserStore } from '@/stores/userStore';
 import { useEffect, useState } from 'react';
 
@@ -11,12 +10,10 @@ export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { currentUser, isLoading, setCurrentUser, initializeUser } =
     useUserStore();
-  const { loadFriends } = useFriendStore();
 
   useEffect(() => {
     initializeUser();
-    loadFriends();
-  }, [initializeUser, loadFriends]);
+  }, [initializeUser]);
 
   if (isLoading || !currentUser) {
     return (
@@ -39,7 +36,9 @@ export default function HomePage() {
           user={currentUser}
           onUserChange={setCurrentUser}
         />
-        <ChatContainer user={currentUser} />
+        <div className="flex-1 overflow-hidden">
+          <ChatContainer user={currentUser} />
+        </div>
       </div>
     </div>
   );
