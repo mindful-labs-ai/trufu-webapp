@@ -14,7 +14,7 @@ interface ChatContainerProps {
 }
 
 export const ChatContainer = ({ user }: ChatContainerProps) => {
-  const { selectedFriend, isLoading: isFriendLoading } = useFriendStore();
+  const { selectedFriend } = useFriendStore();
 
   const {
     messages,
@@ -90,36 +90,19 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
       setShouldAutoScroll(true);
     }
   }, [selectedFriend]);
-  if (!isFriendLoading && !selectedFriend) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            초기화 중...
-          </h2>
-          <p className="text-gray-600 max-w-md">
-            대화할 친구를 먼저 선택해주세요!
-          </p>
-        </div>
-      </div>
-    );
-  }
 
-  if (isFriendLoading) {
+  if (!selectedFriend) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            💬
           </div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            초기화 중...
+            대화 시작하기
           </h2>
           <p className="text-gray-600 max-w-md">
-            대화 환경을 준비하고 있습니다.
+            왼쪽에서 대화할 친구를 선택해주세요!
           </p>
         </div>
       </div>
