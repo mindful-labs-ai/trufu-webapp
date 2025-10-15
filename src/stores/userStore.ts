@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
+import { STORAGE } from '@/constants/storageKeys';
 
 export interface CurrentUser {
   id: string;
@@ -113,7 +114,7 @@ export const useUserStore = create<UserStore>()(
       isAdmin: () => Boolean(get().me?.isAdmin),
     }),
     {
-      name: 'trufu-user',
+      name: STORAGE.USER,
       partialize: s => ({
         me: s.me,
       }),
