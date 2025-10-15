@@ -29,10 +29,11 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
     setError(null);
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password.trim(),
-      });
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password.trim(),
+        });
 
       if (signInError) {
         throw signInError;

@@ -31,7 +31,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         `}
       >
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 h-16 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h1 className="text-xl font-semibold text-gray-800">Trufu</h1>
               <button
@@ -67,10 +67,10 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               </div>
             ) : (
               availableFriends.map((friend: Friend) => (
-              <div
-                key={friend.id}
-                onClick={() => selectFriend(friend)}
-                className={`
+                <div
+                  key={friend.id}
+                  onClick={() => selectFriend(friend)}
+                  className={`
                   p-3 rounded-lg cursor-pointer transition-colors duration-200
                   ${
                     selectedFriend?.id === friend.id
@@ -78,35 +78,35 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                       : 'hover:bg-gray-50'
                   }
                 `}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 font-semibold text-sm">
-                    {friend?.name?.charAt(0)}
-                  </div>
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 font-semibold text-sm">
+                      {friend?.name?.charAt(0)}
+                    </div>
 
-                  <div className="flex-1">
-                    <h3
-                      className={`font-medium text-sm line-clamp-1 ${
-                        selectedFriend?.id === friend.id
-                          ? 'text-blue-900'
-                          : 'text-gray-800'
-                      }`}
-                    >
-                      {friend.name}
-                    </h3>
-                    <p
-                      className={`text-xs mt-1 line-clamp-1 ${
-                        selectedFriend?.id === friend.id
-                          ? 'text-blue-700'
-                          : 'text-gray-500'
-                      }`}
-                    >
-                      {friend.description}
-                    </p>
+                    <div className="flex-1">
+                      <h3
+                        className={`font-medium text-sm line-clamp-1 ${
+                          selectedFriend?.id === friend.id
+                            ? 'text-blue-900'
+                            : 'text-gray-800'
+                        }`}
+                      >
+                        {friend.name}
+                      </h3>
+                      <p
+                        className={`text-xs mt-1 line-clamp-1 ${
+                          selectedFriend?.id === friend.id
+                            ? 'text-blue-700'
+                            : 'text-gray-500'
+                        }`}
+                      >
+                        {friend.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))
             )}
           </div>
         </div>
