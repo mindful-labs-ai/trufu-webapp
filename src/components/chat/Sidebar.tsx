@@ -1,6 +1,7 @@
 'use client';
 
 import { useFriendStore } from '@/stores/friendStore';
+import { useFriendsQuery } from '@/hooks/queries/useFriendsQuery';
 import type { Friend } from '@/types/friend';
 
 interface SidebarProps {
@@ -9,7 +10,8 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  const { selectedFriend, selectFriend, availableFriends } = useFriendStore();
+  const { selectedFriend, selectFriend } = useFriendStore();
+  const { data: availableFriends = [], isLoading } = useFriendsQuery();
 
   return (
     <>
@@ -59,7 +61,12 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 대화 친구들
               </h2>
             </div>
-            {availableFriends.map((friend: Friend) => (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              availableFriends.map((friend: Friend) => (
               <div
                 key={friend.id}
                 onClick={() => selectFriend(friend)}
@@ -116,7 +123,8 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </div>
