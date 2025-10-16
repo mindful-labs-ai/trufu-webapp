@@ -25,12 +25,12 @@ export default function EmailLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary-soft to-secondary-soft flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 bg-blue-600 rounded-full flex items-center justify-center">
+          <div className="mx-auto h-12 w-12 bg-primary rounded-full flex items-center justify-center">
             <svg
-              className="h-6 w-6 text-white"
+              className="h-6 w-6 text-primary-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -43,8 +43,8 @@ export default function EmailLoginPage() {
               />
             </svg>
           </div>
-          <h1 className="mt-6 text-3xl font-extrabold text-gray-900">Trufu</h1>
-          <p className="mt-2 text-sm text-gray-600">이메일 로그인</p>
+          <h1 className="mt-6 text-3xl font-extrabold text-foreground">Trufu</h1>
+          <p className="mt-2 text-sm text-muted-foreground">이메일 로그인</p>
         </div>
         <div className="mt-8">
           <EmailPasswordLogin

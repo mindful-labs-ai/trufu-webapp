@@ -8,13 +8,13 @@ export const parseSimpleMarkdown = (text: string): string => {
   // 코드 블록 (```) - 먼저 처리하여 다른 마크다운 파싱으로부터 보호
   html = html.replace(
     /```([\s\S]*?)```/g,
-    '<pre class="bg-gray-100 p-3 rounded-md overflow-x-auto my-2"><code>$1</code></pre>'
+    '<pre class="bg-muted p-3 rounded-md overflow-x-auto my-2"><code>$1</code></pre>'
   );
 
   // 인라인 코드 (`)
   html = html.replace(
     /`([^`]+)`/g,
-    '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>'
+    '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>'
   );
 
   // 굵은 글씨 (**)
@@ -26,7 +26,7 @@ export const parseSimpleMarkdown = (text: string): string => {
   // 링크 [text](url)
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 underline">$1</a>'
+    '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-primary-strong underline">$1</a>'
   );
 
   // 헤딩 처리 (줄바꿈 전에 처리)

@@ -12,7 +12,7 @@ export function LoadingSpinner({
   return (
     <div
       className={cn(
-        'animate-spin rounded-full border-2 border-gray-300 border-t-primary-600',
+        'animate-spin rounded-full border-2 border-border border-t-primary',
         {
           'h-4 w-4': size === 'sm',
           'h-6 w-6': size === 'md',
