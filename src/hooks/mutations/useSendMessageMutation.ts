@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
 import { QUERY_KEY } from '@/constants/queryKeys';
+import { updateChatSummary } from '@/utils/chatSummary';
 
 interface SendMessageParams {
   userId: string;
@@ -44,24 +45,13 @@ export function useSendMessageMutation() {
 
       queryClient.setQueryData<LatestChatSummary[]>(
         QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old => {
-          const summaries = [...(old || [])];
-          const nextMessage: LatestChatSummary['lastMessage'] = {
+        old =>
+          updateChatSummary(old || [], botId, {
             id: userMessage.id,
             content: userMessage.content,
             role: 'user',
             timestamp: new Date().toISOString(),
-          };
-
-          const index = summaries.findIndex(summary => summary.botId === botId);
-          if (index >= 0) {
-            summaries[index] = { botId, lastMessage: nextMessage };
-          } else {
-            summaries.push({ botId, lastMessage: nextMessage });
-          }
-
-          return summaries;
-        }
+          })
       );
 
       return { previousMessages, previousSummary };
@@ -82,24 +72,13 @@ export function useSendMessageMutation() {
 
       queryClient.setQueryData<LatestChatSummary[]>(
         QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old => {
-          const summaries = [...(old || [])];
-          const nextMessage: LatestChatSummary['lastMessage'] = {
+        old =>
+          updateChatSummary(old || [], botId, {
             id: assistantMessage.id,
             content: assistantMessage.content,
             role: 'assistant',
             timestamp: new Date().toISOString(),
-          };
-
-          const index = summaries.findIndex(summary => summary.botId === botId);
-          if (index >= 0) {
-            summaries[index] = { botId, lastMessage: nextMessage };
-          } else {
-            summaries.push({ botId, lastMessage: nextMessage });
-          }
-
-          return summaries;
-        }
+          })
       );
     },
 
@@ -134,24 +113,13 @@ export function useSendMessageMutation() {
 
       queryClient.setQueryData<LatestChatSummary[]>(
         QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old => {
-          const summaries = [...(old || [])];
-          const nextMessage: LatestChatSummary['lastMessage'] = {
+        old =>
+          updateChatSummary(old || [], botId, {
             id: errorMessage.id,
             content: errorMessage.content,
             role: 'assistant',
             timestamp: new Date().toISOString(),
-          };
-
-          const index = summaries.findIndex(summary => summary.botId === botId);
-          if (index >= 0) {
-            summaries[index] = { botId, lastMessage: nextMessage };
-          } else {
-            summaries.push({ botId, lastMessage: nextMessage });
-          }
-
-          return summaries;
-        }
+          })
       );
     },
   });

@@ -117,7 +117,6 @@ export class ChatService {
         timestamp: new Date(record.updated_at),
       }));
 
-      // desc 순서로 조회했으므로 시간순으로 재정렬
       if (orderBy === 'desc') {
         messages.reverse();
       }
@@ -137,8 +136,8 @@ export class ChatService {
         .from('chat_messages')
         .select('chat_hist_id, bot_id, sender, messages, updated_at')
         .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(200);
+        .order('bot_id')
+        .order('updated_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching latest chat summary:', error);
