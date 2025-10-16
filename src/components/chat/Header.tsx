@@ -2,34 +2,27 @@
 
 import { useFriendStore } from '@/stores/friendStore';
 import { useUserStore } from '@/stores/userStore';
-import { User } from '@/types/user';
 import { useEffect, useRef, useState } from 'react';
 
 interface HeaderProps {
   onMenuClick: () => void;
-  user: User;
-  onUserChange?: (user: User) => void;
 }
 
-export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
+export const Header = ({ onMenuClick }: HeaderProps) => {
   const { selectedFriend } = useFriendStore();
-  const { users, isLoadingUsers, loadUsers } = useUserStore();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (users.length === 0) {
-      loadUsers();
-    }
-  }, [users.length, loadUsers]);
+  const me = useUserStore(s => s.me);
+  const logout = useUserStore(s => s.logout);
+  const isUserLoading = useUserStore(s => s.isLoading);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
       ) {
-        setIsDropdownOpen(false);
+        setIsProfileOpen(false);
       }
     };
 
@@ -39,12 +32,18 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
     };
   }, []);
 
-  const handleUserSelect = (user: User) => {
-    onUserChange?.(user);
-    setIsDropdownOpen(false);
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Failed to logout', error);
+    } finally {
+      setIsProfileOpen(false);
+    }
   };
+
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200 p-4 h-16 flex items-center justify-between">
       <div className="flex items-center">
         <button
           onClick={onMenuClick}
@@ -65,104 +64,43 @@ export const Header = ({ onMenuClick, user, onUserChange }: HeaderProps) => {
           </svg>
         </button>
         <h1 className="ml-2 text-xl font-semibold text-gray-800">
-          {selectedFriend ? `${selectedFriend.name}와 대화중` : 'Trufu Chat'}
+          {selectedFriend ? `${selectedFriend.name}` : 'Trufu'}
         </h1>
-        <div className="ml-4 px-3 py-1 bg-blue-50 rounded-full">
-          <span className="text-sm text-blue-700 font-medium">
-            현재 사용자: {user.nickname}
-          </span>
-        </div>
-        {selectedFriend && (
-          <div className="ml-2 px-3 py-1 bg-green-50 rounded-full">
-            <span className="text-sm text-green-700 font-medium">
-              🤖 Bot: {selectedFriend.id}
-            </span>
-          </div>
-        )}
       </div>
 
       <div className="flex items-center space-x-4">
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center space-x-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <span className="text-lg">{user.avatar}</span>
-            <span className="text-sm font-medium text-gray-700">
-              {user.nickname}
+            <span className="text-white text-sm font-medium">
+              {me?.email?.charAt(0).toUpperCase() || 'U'}
             </span>
-            <svg
-              className={`w-4 h-4 text-gray-500 transition-transform ${
-                isDropdownOpen ? 'rotate-180' : ''
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
           </button>
 
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-              <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
-                사용자 선택
+          {isProfileOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <p className="text-sm font-medium text-gray-900">
+                  {me?.email || '사용자'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {me?.isAdmin ? '관리자' : '일반 사용자'}
+                </p>
               </div>
-              {isLoadingUsers ? (
-                <div className="px-3 py-2 text-sm text-gray-500">
-                  사용자 로딩 중...
-                </div>
-              ) : users.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-500">
-                  사용자가 없습니다
-                </div>
-              ) : (
-                users.map((userOption: User) => (
-                  <button
-                    key={userOption.id}
-                    onClick={() => handleUserSelect(userOption)}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center space-x-2 ${
-                      userOption.id === user.id
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-700'
-                    }`}
-                  >
-                    <span className="text-lg">{userOption.avatar}</span>
-                    <div>
-                      <div className="font-medium">{userOption.nickname}</div>
-                      <div className="text-xs text-gray-500">
-                        {userOption.email}
-                      </div>
-                    </div>
-                    {userOption.id === user.id && (
-                      <div className="ml-auto">
-                        <svg
-                          className="w-4 h-4 text-blue-600"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                ))
-              )}
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                프로필 설정
+              </button>
+              <button
+                onClick={handleLogout}
+                disabled={isUserLoading}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                로그아웃
+              </button>
             </div>
           )}
-        </div>
-
-        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-          <span className="text-white text-sm font-medium">AI</span>
         </div>
       </div>
     </header>

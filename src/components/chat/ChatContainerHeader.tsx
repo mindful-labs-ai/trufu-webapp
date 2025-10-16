@@ -1,11 +1,11 @@
 'use client';
 
 import { Chatbot } from '@/types/friend';
-import { User } from '@/types/user';
 import { AffinityProgressBar } from './AffinityProgressBar';
+import { CurrentUser } from '@/stores/userStore';
 
 interface ChatContainerHeaderProps {
-  user: User;
+  user: CurrentUser;
   chatbot: Chatbot;
   messageCount?: number;
 }

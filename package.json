@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.5",
+    "@tanstack/react-query": "^5.90.3",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.2",
     "next": "15.5.2",

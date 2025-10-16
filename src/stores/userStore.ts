@@ -1,91 +1,117 @@
-import { getAllUsers } from '@/services/user.service';
-import { User } from '@/types/user';
+'use client';
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { supabase } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
+import { STORAGE } from '@/constants/storageKeys';
 
-interface UserState {
-  currentUser: User | null;
-  users: User[];
-  isLoading: boolean;
-  isLoadingUsers: boolean;
-  error: string | null;
-
-  setCurrentUser: (user: User) => void;
-  loadUsers: () => Promise<void>;
-  initializeUser: () => Promise<void>;
-  clearError: () => void;
+export interface CurrentUser {
+  id: string;
+  email?: string;
+  isAdmin: boolean;
+  object: User;
 }
 
-export const useUserStore = create<UserState>()(
+interface UserStore {
+  me: CurrentUser | null;
+  isLoading: boolean;
+  isInitialized: boolean;
+  error?: string;
+
+  initialize: () => Promise<void>;
+  refresh: () => Promise<void>;
+  logout: () => Promise<void>;
+  clear: () => void;
+
+  isAuthenticated: () => boolean;
+  isAdmin: () => boolean;
+}
+
+export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
-      currentUser: null,
-      users: [],
-      isLoading: true,
-      isLoadingUsers: false,
-      error: null,
+      me: null,
+      isLoading: false,
+      isInitialized: false,
+      error: undefined,
 
-      setCurrentUser: (user: User) => {
-        set({ currentUser: user });
-      },
-
-      loadUsers: async () => {
-        try {
-          set({ isLoadingUsers: true, error: null });
-          const userData = await getAllUsers();
-          set({ users: userData });
-        } catch (error) {
-          console.error('Failed to load users:', error);
-          set({
-            error:
-              error instanceof Error ? error.message : 'Failed to load users',
-            users: [],
-          });
-        } finally {
-          set({ isLoadingUsers: false });
+      initialize: async () => {
+        if (get().isInitialized) {
+          return;
         }
-      },
 
-      initializeUser: async () => {
+        set({ isLoading: true, error: undefined });
         try {
-          set({ isLoading: true, error: null });
-          const { currentUser } = get();
-
-          if (currentUser) {
-            await get().loadUsers();
-            set({ isLoading: false });
+          const { data, error } = await supabase.auth.getUser();
+          if (error || !data?.user) {
+            set({
+              me: null,
+              isLoading: false,
+              isInitialized: true,
+              error: error?.message,
+            });
             return;
           }
+          const u = data.user;
+          const isAdmin = Boolean(u.role === 'admin');
 
-          await get().loadUsers();
-
-          // FIXME: 임시로 첫 번째 유저를 currentUser로 설정
-          const { users } = get();
-          if (users.length > 0) {
-            set({ currentUser: users[0] });
-          }
-        } catch (error) {
-          console.error('Failed to initialize user:', error);
           set({
-            error:
-              error instanceof Error
-                ? error.message
-                : 'Failed to initialize user',
+            me: { id: u.id, email: u.email ?? undefined, isAdmin, object: u },
+            isLoading: false,
+            isInitialized: true,
           });
-        } finally {
-          set({ isLoading: false });
+        } catch (e: any) {
+          set({
+            me: null,
+            isLoading: false,
+            isInitialized: true,
+            error: e?.message || 'init_failed',
+          });
         }
       },
 
-      // 에러 클리어
-      clearError: () => {
-        set({ error: null });
+      refresh: async () => {
+        await supabase.auth.refreshSession();
+        await get().initialize();
       },
+
+      logout: async () => {
+        set({ isLoading: true, error: undefined });
+        try {
+          const { error } = await supabase.auth.signOut();
+          if (error) {
+            throw error;
+          }
+          set({
+            me: null,
+            isLoading: false,
+            isInitialized: true,
+          });
+        } catch (e: any) {
+          set({
+            isLoading: false,
+            error: e?.message || 'logout_failed',
+          });
+          throw e;
+        }
+      },
+
+      clear: () =>
+        set({
+          me: null,
+          isLoading: false,
+          isInitialized: false,
+          error: undefined,
+        }),
+
+      isAuthenticated: () => Boolean(get().me),
+      isAdmin: () => Boolean(get().me?.isAdmin),
     }),
     {
-      name: 'trufu-user-storage', // localStorage 키
-      partialize: state => ({
-        currentUser: state.currentUser, // currentUser만 영구 저장
+      name: STORAGE.USER,
+      partialize: s => ({
+        me: s.me,
       }),
     }
   )
