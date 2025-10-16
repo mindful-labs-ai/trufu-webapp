@@ -31,3 +31,13 @@ export interface ChatHistoryOptions {
   offset?: number;
   orderBy?: 'asc' | 'desc';
 }
+
+export interface LatestChatSummary {
+  botId: string;
+  lastMessage: {
+    id: string;
+    content: string;
+    role: 'user' | 'assistant';
+    timestamp: string;
+  } | null;
+}

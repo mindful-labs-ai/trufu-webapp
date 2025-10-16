@@ -1,5 +1,10 @@
 import { supabase } from '@/lib/supabase';
-import { ChatHistoryOptions, ChatMessageRecord, Message } from '@/types/chat';
+import {
+  ChatHistoryOptions,
+  ChatMessageRecord,
+  LatestChatSummary,
+  Message,
+} from '@/types/chat';
 import {
   TrufuChatRequest,
   TrufuChatResponse,
@@ -120,6 +125,54 @@ export class ChatService {
       return messages;
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
+      throw error;
+    }
+  }
+
+  static async getLatestChatSummary(
+    userId: string
+  ): Promise<LatestChatSummary[]> {
+    try {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('chat_hist_id, bot_id, sender, messages, updated_at')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+        .limit(200);
+
+      if (error) {
+        console.error('Error fetching latest chat summary:', error);
+        throw error;
+      }
+
+      if (!data) {
+        return [];
+      }
+
+      const seenBots = new Set<string>();
+      const summaries: LatestChatSummary[] = [];
+
+      for (const record of data) {
+        if (seenBots.has(record.bot_id)) {
+          continue;
+        }
+
+        summaries.push({
+          botId: record.bot_id,
+          lastMessage: {
+            id: record.chat_hist_id,
+            content: record.messages,
+            role: record.sender === 'user' ? 'user' : 'assistant',
+            timestamp: record.updated_at,
+          },
+        });
+
+        seenBots.add(record.bot_id);
+      }
+
+      return summaries;
+    } catch (error) {
+      console.error('Failed to fetch latest chat summary:', error);
       throw error;
     }
   }

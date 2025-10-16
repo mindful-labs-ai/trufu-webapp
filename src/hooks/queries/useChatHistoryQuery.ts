@@ -42,5 +42,6 @@ export function useChatHistoryQuery({
     enabled: Boolean(userId && botId), // userId와 botId가 있을 때만 실행
     staleTime: 1000 * 60 * 2, // 2분 동안 fresh 상태 유지
     gcTime: 1000 * 60 * 10, // 10분 후 가비지 컬렉션
+    refetchOnWindowFocus: false,
   });
 }
