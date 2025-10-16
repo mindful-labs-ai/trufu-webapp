@@ -2,6 +2,7 @@
 
 import { EmailPasswordLogin } from '@/components/auth/EmailPasswordLogin';
 import { useUserStore } from '@/stores/userStore';
+import { redirectAfterAuth } from '@/utils/auth-redirect';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -11,12 +12,12 @@ export default function EmailLoginPage() {
 
   useEffect(() => {
     if (currentUser) {
-      router.push('/');
+      redirectAfterAuth(router);
     }
   }, [currentUser, router]);
 
   const handleLoginSuccess = () => {
-    window.location.reload(); // TODO: URL에 query param으로 어디서 왔는지 명시해서, 로그인 성공 시 리다이렉트
+    redirectAfterAuth(router);
   };
 
   const handleLoginError = (error: string) => {
