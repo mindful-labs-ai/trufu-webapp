@@ -196,18 +196,30 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
               );
             })}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '0.1s' }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: '0.2s' }}
-                    ></div>
+              <div className="flex flex-row space-x-2 justify-start">
+                <div
+                  className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
+                >
+                  <span className="text-primary-foreground text-sm font-medium">
+                    {selectedFriend?.name?.charAt(0).toUpperCase() || 'B'}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500 mb-1">
+                    {selectedFriend?.name}
+                  </span>
+                  <div className="bg-muted rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-foreground rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-foreground rounded-full animate-bounce"
+                        style={{ animationDelay: '0.1s' }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-foreground rounded-full animate-bounce"
+                        style={{ animationDelay: '0.2s' }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
               </div>
