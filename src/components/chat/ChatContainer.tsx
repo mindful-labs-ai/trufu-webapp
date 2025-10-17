@@ -37,9 +37,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   // 채팅방 선택 시 현재 보고 있는 채팅방의 unread를 0으로 표시 (클라이언트 상태)
   useEffect(() => {
     if (selectedFriend?.id) {
-      queryClient.setQueryData<Friend[]>(
-        QUERY_KEY.FRIENDS(),
-        old => old?.map(friend =>
+      queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
+        old?.map(friend =>
           friend.id === selectedFriend.id
             ? { ...friend, unread_count: 0, has_unread: false }
             : friend
@@ -149,7 +148,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 pb-32 space-y-4"
+        className="flex-1 overflow-y-auto p-4 pb-48 space-y-4"
         onScroll={handleScroll}
       >
         {historyError && (
@@ -256,6 +255,11 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
         {!isLoadingHistory && messages.length === 0 && (
           <div ref={messagesEndRef} />
         )}
+
+        {/* dopo.gif 고정 이미지 - 스크롤 영역 하단 고정 */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
+          <img src="/dopo.gif" alt="Dopo" className="w-72 h-72 object-cover" />
+        </div>
       </div>
 
       <div className="relative">
