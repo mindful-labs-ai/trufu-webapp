@@ -17,7 +17,7 @@ export function ChatContainerHeader({
 }: ChatContainerHeaderProps) {
   return (
     <div className="flex flex-col items-center space-x-4">
-      <h1 className="ml-2 text-xl font-semibold text-gray-800">
+      <h1 className="ml-2 text-xl font-semibold text-foreground">
         💬 {chatbot.name}
       </h1>
       <AffinityProgressBar

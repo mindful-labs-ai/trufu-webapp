@@ -18,12 +18,12 @@ export function IconButton({
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50',
+        'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50',
         {
-          'bg-gray-100 text-gray-900 hover:bg-gray-200': variant === 'default',
-          'text-gray-500 hover:bg-gray-100 hover:text-gray-900':
+          'bg-muted text-foreground hover:bg-muted': variant === 'default',
+          'text-muted-foreground hover:bg-muted hover:text-foreground':
             variant === 'ghost',
-          'text-red-500 hover:bg-red-50 hover:text-red-600':
+          'text-destructive hover:bg-destructive/10 hover:text-destructive':
             variant === 'danger',
         },
         {

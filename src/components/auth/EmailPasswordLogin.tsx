@@ -68,12 +68,12 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+      <div className="bg-card shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 border border-border">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-center text-gray-700">
+          <h2 className="text-2xl font-bold text-center text-foreground">
             이메일 로그인
           </h2>
-          <p className="text-center text-gray-600 mt-2">
+          <p className="text-center text-muted-foreground mt-2">
             이메일과 비밀번호로 로그인하세요
           </p>
         </div>
@@ -81,7 +81,7 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-foreground text-sm font-bold mb-2"
               htmlFor="email"
             >
               이메일
@@ -92,14 +92,14 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
               placeholder="example@email.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border border-input rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:ring-2 focus:ring-primary focus:shadow-outline bg-background"
               disabled={isLoading}
             />
           </div>
 
           <div className="mb-6">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-foreground text-sm font-bold mb-2"
               htmlFor="password"
             >
               비밀번호
@@ -110,13 +110,13 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
               placeholder="••••••••"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border border-input rounded w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:ring-2 focus:ring-primary focus:shadow-outline bg-background"
               disabled={isLoading}
             />
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded">
               {error}
             </div>
           )}
@@ -125,7 +125,7 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
             <button
               type="submit"
               disabled={isLoading || !email.trim() || !password.trim()}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed w-full"
+              className="bg-primary hover:bg-primary-strong text-primary-foreground font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed w-full"
             >
               {isLoading ? '로그인 중...' : '로그인'}
             </button>

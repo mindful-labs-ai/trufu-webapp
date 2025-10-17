@@ -42,18 +42,20 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <div
         className={`
           fixed lg:relative z-50 lg:z-auto
-          w-80 h-full bg-white border-r border-gray-200
+          w-80 h-full bg-sidebar border-r border-sidebar-border
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         <div className="flex flex-col h-full">
-          <div className="p-4 h-16 border-b border-gray-200">
+          <div className="p-4 h-16 border-b border-sidebar-border">
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-semibold text-gray-800">Trufu</h1>
+              <h1 className="text-xl font-semibold text-sidebar-foreground">
+                Trufu
+              </h1>
               <button
                 onClick={onClose}
-                className="lg:hidden p-1 rounded-md hover:bg-gray-100 transition-colors"
+                className="lg:hidden p-1 rounded-md hover:bg-muted transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -74,13 +76,13 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
             <div className="mb-4">
-              <h2 className="text-sm font-medium text-gray-600 mb-2">
+              <h2 className="text-sm font-medium text-muted-foreground mb-2">
                 대화 친구들
               </h2>
             </div>
             {isLoading ? (
               <div className="flex justify-center items-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : (
               availableFriends.map((friend: Friend) => (
@@ -91,33 +93,21 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                   p-3 rounded-lg cursor-pointer transition-colors duration-200
                   ${
                     selectedFriend?.id === friend.id
-                      ? 'bg-blue-50'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-tertiary-soft dark:bg-tertiary/30 border border-tertiary-border dark:border-tertiary-strong ring-1 ring-tertiary/40 dark:ring-tertiary-strong/40'
+                      : 'hover:bg-muted'
                   }
                 `}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 font-semibold text-sm">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-sm">
                       {friend?.name?.charAt(0)}
                     </div>
 
                     <div className="flex-1">
-                      <h3
-                        className={`font-medium text-sm line-clamp-1 ${
-                          selectedFriend?.id === friend.id
-                            ? 'text-blue-900'
-                            : 'text-gray-800'
-                        }`}
-                      >
+                      <h3 className="font-medium text-sm line-clamp-1">
                         {friend.name}
                       </h3>
-                      <p
-                        className={`text-xs mt-1 line-clamp-1 ${
-                          selectedFriend?.id === friend.id
-                            ? 'text-blue-700'
-                            : 'text-gray-500'
-                        }`}
-                      >
+                      <p className="text-xs mt-1 line-clamp-1 text-muted-foreground">
                         {lastMessageMap[friend.id] || friend.description}
                       </p>
                     </div>
