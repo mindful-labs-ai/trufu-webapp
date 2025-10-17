@@ -58,7 +58,7 @@ export const ChatMessage = ({
             className={`rounded-2xl px-4 py-3 relative ${
               isUser
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-foreground'
+                : 'bg-message-bg text-foreground'
             }`}
           >
             {!isUser && isAdmin && (
