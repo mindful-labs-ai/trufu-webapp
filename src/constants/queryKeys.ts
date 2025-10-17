@@ -6,4 +6,5 @@ export const QUERY_KEY = {
   ],
   FRIENDS: () => ['FRIENDS_LIST'],
   LATEST_CHAT_SUMMARY: (userId: string) => ['LATEST_CHAT_SUMMARY', `${userId}`],
+  CREDIT: (type: string) => ['CREDIT', type],
 };

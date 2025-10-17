@@ -27,6 +27,11 @@ export interface TrufuChatResponse {
   template: {
     outputs: Array<TrufuChatSimpleMessage>;
   };
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
 }
 
 export interface TrufuChatMessage {

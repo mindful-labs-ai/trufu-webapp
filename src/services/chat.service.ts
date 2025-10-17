@@ -19,7 +19,7 @@ export class ChatService {
     userId: string,
     botId: string,
     message: string
-  ): Promise<TrufuChatSimpleMessage> {
+  ): Promise<TrufuChatSimpleMessage & { usage?: TrufuChatResponse['usage'] }> {
     try {
       const requestBody: TrufuChatRequest = {
         intent: {
@@ -68,7 +68,11 @@ export class ChatService {
       );
 
       if (responseMessage?.simpleText?.text) {
-        return responseMessage;
+        // TODO: trufu-chat Edge Function에서 usage 정보 반환하면 활성화
+        return {
+          ...responseMessage,
+          usage: data.usage, // 토큰 사용량 정보 포함
+        };
       }
 
       return {

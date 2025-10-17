@@ -5,6 +5,7 @@ import { QUERY_KEY } from '@/constants/queryKeys';
 import { updateChatSummary } from '@/utils/chatSummary';
 import { Friend } from '@/types/friend';
 import { useFriendStore } from '@/stores/friendStore';
+import { consumeCredit } from '@/services/token-client.service';
 
 interface SendMessageParams {
   userId: string;
@@ -18,7 +19,27 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
   return useMutation({
     mutationKey: userId && botId ? ['SEND_MESSAGE', userId, botId] : undefined,
     mutationFn: async ({ userId, botId, content }: SendMessageParams) => {
+      // TODO: trufu-chat Edge Function에서 usage 정보 반환하면 활성화
+      const ENABLE_CREDIT_CHECK = false;
+
+      // 메시지 전송
       const response = await ChatService.sendMessage(userId, botId, content);
+
+      if (ENABLE_CREDIT_CHECK && response.usage?.total_tokens) {
+        // AI 응답 후 실제 토큰 사용량으로 크레딧 차감
+        const creditResult = await consumeCredit(
+          'openai',
+          response.usage.total_tokens
+        );
+
+        if (!creditResult.ok) {
+          console.warn(
+            'Credit consumption failed after message sent:',
+            creditResult
+          );
+        }
+      }
+
       return response;
     },
 
@@ -84,14 +105,12 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
           })
       );
 
-      // AI 응답이 현재 보고 있지 않은 채팅방에서 왔을 경우 unread 증가 (클라이언트 상태)
       const currentSelectedFriend = useFriendStore.getState().selectedFriend;
       const isCurrentlyViewing = currentSelectedFriend?.id === botId;
 
       if (!isCurrentlyViewing) {
-        queryClient.setQueryData<Friend[]>(
-          QUERY_KEY.FRIENDS(),
-          old => old?.map(friend =>
+        queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
+          old?.map(friend =>
             friend.id === botId
               ? {
                   ...friend,
@@ -102,6 +121,10 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
           )
         );
       }
+
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEY.CREDIT('openai'),
+      });
 
       // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
       // 1. 현재 보고 있는 채팅방일 경우 assistantMessage.id를 last_read_message_id로 업데이트
@@ -127,10 +150,16 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         );
       }
 
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEY.CREDIT('openai'),
+      });
+
       const errorMessage: Message = {
         id: `error_${Date.now()}`,
         content:
-          'Sorry, I encountered an error while processing your message. Please try again.',
+          error instanceof Error && error.message.includes('크레딧')
+            ? error.message
+            : 'Sorry, I encountered an error while processing your message. Please try again.',
         role: 'assistant',
         timestamp: new Date(),
       };
