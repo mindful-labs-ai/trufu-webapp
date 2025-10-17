@@ -8,4 +8,7 @@ export interface Chatbot {
   updated_at: string;
 }
 
-export interface Friend extends Chatbot {}
+export interface Friend extends Chatbot {
+  unread_count?: number;
+  has_unread?: boolean;
+}

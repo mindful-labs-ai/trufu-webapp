@@ -3,6 +3,8 @@ import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
 import { QUERY_KEY } from '@/constants/queryKeys';
 import { updateChatSummary } from '@/utils/chatSummary';
+import { Friend } from '@/types/friend';
+import { useFriendStore } from '@/stores/friendStore';
 
 interface SendMessageParams {
   userId: string;
@@ -81,6 +83,32 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
             timestamp: new Date().toISOString(),
           })
       );
+
+      // AI 응답이 현재 보고 있지 않은 채팅방에서 왔을 경우 unread 증가 (클라이언트 상태)
+      const currentSelectedFriend = useFriendStore.getState().selectedFriend;
+      const isCurrentlyViewing = currentSelectedFriend?.id === botId;
+
+      if (!isCurrentlyViewing) {
+        queryClient.setQueryData<Friend[]>(
+          QUERY_KEY.FRIENDS(),
+          old => old?.map(friend =>
+            friend.id === botId
+              ? {
+                  ...friend,
+                  unread_count: (friend.unread_count || 0) + 1,
+                  has_unread: true,
+                }
+              : friend
+          )
+        );
+      }
+
+      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
+      // 1. 현재 보고 있는 채팅방일 경우 assistantMessage.id를 last_read_message_id로 업데이트
+      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
+      //    - Body: { last_read_message_id: assistantMessage.id }
+      // 2. 위의 클라이언트 unread 증가 로직 제거
+      // 3. 서버의 chatbots_with_unread 뷰에서 자동으로 unread 계산
     },
 
     onError: (error, { userId, botId }, context) => {
