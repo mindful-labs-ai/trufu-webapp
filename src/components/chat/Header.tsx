@@ -101,7 +101,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 <span>다크 모드</span>
                 <div
                   className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
-                    theme === 'dark' ? 'bg-tertiary-strong' : 'bg-accent-soft'
+                    theme === 'dark' ? 'bg-primary' : 'bg-muted-bg'
                   }`}
                 >
                   <span

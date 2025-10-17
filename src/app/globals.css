@@ -5,17 +5,18 @@
   --bg-base: #f9fafb; /* gray-50 */
   --fg-base: #111827; /* gray-900 */
 
-  --primary-base: #2563eb; /* blue-600 */
+  --primary-base: #4325eb; /* blue-600 */
   --secondary-base: #8b5cf6; /* violet-500 */
-  --accent-base: #06b6d4; /* cyan-500 */
-  --tertiary-base: #10b981; /* emerald-500 (emphasis for selection/toggles) */
+  --accent-base: #4325eb; /* cyan-500 */
+  --tertiary-base: #eb257e; /* emerald-500 (emphasis for selection/toggles) */
 
   --card-base: #ffffff; /* white */
   --card-fg-base: #111827;
   --popover-base: #ffffff;
   --popover-fg-base: #111827;
 
-  --muted-base: #f3f4f6; /* gray-100 */
+  --muted-base: #edeff1; /* gray-100 */
+  --muted-bg-base: #dbdde0;
   --muted-fg-base: #6b7280; /* gray-500 */
 
   --destructive-base: #dc2626; /* red-600 */
@@ -29,25 +30,28 @@
   --sidebar-primary-base: #2563eb;
   --sidebar-accent-base: #f3f4f6;
 
+  --message-bg-base: #eceff5;
+
   --radius: 0.625rem;
 }
 
 .dark {
   /* Dark theme base (balanced contrast) */
-  --bg-base: #0f172a; /* slate-900 */
+  --bg-base: #1d212c; /* slate-900 */
   --fg-base: #e5e7eb; /* gray-200 */
 
-  --primary-base: #60a5fa; /* blue-400 */
-  --secondary-base: #a78bfa; /* violet-400 */
-  --accent-base: #22d3ee; /* cyan-400 */
-  --tertiary-base: #34d399; /* emerald-400 */
+  --primary-base: #6a52f0; /* blue-400 */
+  --secondary-base: #8b5cf6; /* violet-400 */
+  --accent-base: #4325eb; /* cyan-400 */
+  --tertiary-base: #cd465f; /* emerald-400 */
 
-  --card-base: #111827; /* gray-900 */
+  --card-base: #1d212c; /* gray-900 */
   --card-fg-base: #e5e7eb;
   --popover-base: #111827;
   --popover-fg-base: #e5e7eb;
 
-  --muted-base: #1f2937; /* gray-800 */
+  --muted-base: #30363e; /* gray-800 */
+  --muted-bg-base: #394251;
   --muted-fg-base: #9ca3af; /* gray-400 */
 
   --destructive-base: #ef4444; /* red-500 */
@@ -60,6 +64,8 @@
   --sidebar-fg-base: #e5e7eb;
   --sidebar-primary-base: #8b5cf6;
   --sidebar-accent-base: #1f2937;
+
+  --message-bg-base: #202735;
 }
 
 /* 각 메인 컬러는 단일 토큰과 soft/strong 변형만 제공합니다. */
@@ -146,6 +152,12 @@
   --color-sidebar-accent-foreground: #ffffff;
   --color-sidebar-border: oklch(from var(--border-base) l c h);
   --color-sidebar-ring: oklch(from var(--ring-base) l c h);
+
+  /* Message */
+  --color-message-bg: oklch(from var(--message-bg-base) l c h);
+
+  /* Muted BG */
+  --color-muted-bg: oklch(from var(--muted-bg-base) l c h);
 }
 
 @layer base {

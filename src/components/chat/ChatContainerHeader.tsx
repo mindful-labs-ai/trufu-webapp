@@ -16,10 +16,10 @@ export function ChatContainerHeader({
   messageCount = 0,
 }: ChatContainerHeaderProps) {
   return (
-    <div className="flex flex-col items-center space-x-4">
-      <h1 className="ml-2 text-xl font-semibold text-foreground">
+    <div className="flex flex-col items-center space-y-2 max-w-[600px] mx-auto">
+      {/* <h1 className="text-xl font-semibold text-foreground">
         💬 {chatbot.name}
-      </h1>
+      </h1> */}
       <AffinityProgressBar
         userId={user.id.toString()}
         botId={chatbot.id}

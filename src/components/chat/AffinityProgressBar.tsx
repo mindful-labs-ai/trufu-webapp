@@ -21,7 +21,7 @@ export function AffinityProgressBar({
 
   if (isLoading) {
     return (
-      <div className={`animate-pulse max-w-4xl mx-auto`}>
+      <div className={`animate-pulse max-w-[720px] mx-auto`}>
         <div className="h-4 bg-muted rounded w-24"></div>
       </div>
     );
@@ -35,7 +35,7 @@ export function AffinityProgressBar({
   return (
     <>
       <div
-        className={`flex items-center space-x-2 w-full cursor-pointer hover:bg-muted rounded-lg p-2 transition-colors`}
+        className={`flex items-center space-x-2 w-full cursor-pointer rounded-lg p-2 transition-colors`}
         onClick={() => setShowModal(true)}
       >
         <span className="text-lg">{levelInfo.emoji}</span>
