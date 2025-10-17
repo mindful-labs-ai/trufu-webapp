@@ -10,10 +10,11 @@ interface SendMessageParams {
   content: string;
 }
 
-export function useSendMessageMutation() {
+export function useSendMessageMutation(userId?: string, botId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: userId && botId ? ['SEND_MESSAGE', userId, botId] : undefined,
     mutationFn: async ({ userId, botId, content }: SendMessageParams) => {
       const response = await ChatService.sendMessage(userId, botId, content);
       return response;
