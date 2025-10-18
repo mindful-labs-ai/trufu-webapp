@@ -29,7 +29,7 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
+    <div className="border-t border-border bg-card p-4">
       <div className="max-w-[720px] mx-auto">
         <form onSubmit={handleSubmit} className="flex space-x-3">
           <div className="flex-1 relative">
@@ -40,9 +40,9 @@ export const ChatInput = ({
               placeholder="Type your message here..."
               disabled={disabled}
               rows={1}
-              className="w-full px-4 py-3 border border-gray-300 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"
               style={{
-                minHeight: '48px',
+                height: '48px',
                 maxHeight: '120px',
               }}
             />
@@ -51,21 +51,14 @@ export const ChatInput = ({
           <button
             type="submit"
             disabled={!message.trim() || disabled}
-            className="px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 bg-primary text-primary-foreground rounded-2xl hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:bg-muted-bg disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors h-[48px] flex items-center justify-center"
           >
-            <svg
+            <img
+              src="/paper-plane.svg"
+              alt="Send message"
               className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </button>
         </form>
       </div>

@@ -40,9 +40,9 @@ export const ChatMessage = ({
         {isUser ? null : (
           <div className={`flex-shrink-0 pl-2 ${isUser ? 'ml-2' : 'mr-2'}`}>
             <div
-              className={`w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center`}
+              className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
             >
-              <span className="text-white text-sm font-medium">
+              <span className="text-primary-foreground text-sm font-medium">
                 {friendName?.charAt(0).toUpperCase() || 'B'}
               </span>
             </div>
@@ -56,13 +56,15 @@ export const ChatMessage = ({
 
           <div
             className={`rounded-2xl px-4 py-3 relative ${
-              isUser ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+              isUser
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-message-bg text-foreground'
             }`}
           >
             {!isUser && isAdmin && (
               <button
                 onClick={handleStatsClick}
-                className="absolute top-2 right-2 text-gray-400 hover:text-blue-500 transition-all duration-200 p-1.5 rounded-full hover:bg-blue-50 group"
+                className="absolute top-2 right-2 text-muted-foreground hover:text-primary transition-all duration-200 p-1.5 rounded-full hover:bg-primary-soft group"
                 title="워크플로우 통계 보기"
               >
                 <svg
@@ -92,7 +94,7 @@ export const ChatMessage = ({
             />
             <p
               className={`text-[10px] mt-2 ${
-                isUser ? 'text-blue-100 text-right' : 'text-gray-500'
+                isUser ? 'text-primary-soft text-right' : 'text-muted-foreground'
               }`}
             >
               {message.timestamp.toLocaleTimeString([], {

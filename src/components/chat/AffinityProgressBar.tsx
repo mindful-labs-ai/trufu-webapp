@@ -21,8 +21,8 @@ export function AffinityProgressBar({
 
   if (isLoading) {
     return (
-      <div className={`animate-pulse max-w-4xl mx-auto`}>
-        <div className="h-4 bg-gray-200 rounded w-24"></div>
+      <div className={`animate-pulse max-w-[720px] mx-auto`}>
+        <div className="h-4 bg-muted rounded w-24"></div>
       </div>
     );
   }
@@ -35,22 +35,22 @@ export function AffinityProgressBar({
   return (
     <>
       <div
-        className={`flex items-center space-x-2 w-full cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors`}
+        className={`flex items-center space-x-2 w-full cursor-pointer rounded-lg p-2 transition-colors`}
         onClick={() => setShowModal(true)}
       >
         <span className="text-lg">{levelInfo.emoji}</span>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-foreground">
             친밀도 {affinity.affinity}
           </div>
           <div className="flex items-center space-x-2">
-            <div className="flex-1 bg-gray-200 rounded-full h-2">
+            <div className="flex-1 bg-muted rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-tertiary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progress.progressPercent}%` }}
               />
             </div>
-            <span className="text-xs text-gray-500 min-w-0">
+            <span className="text-xs text-muted-foreground min-w-0">
               {Math.round(progress.progressPercent)}%
             </span>
           </div>
@@ -63,7 +63,7 @@ export function AffinityProgressBar({
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-white rounded-lg max-w-md w-full mx-4 p-8"
+            className="bg-card border border-border rounded-lg max-w-md w-full mx-4 p-8"
             onClick={e => e.stopPropagation()}
           >
             <AffinityDetail
@@ -74,7 +74,7 @@ export function AffinityProgressBar({
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-strong transition-colors"
               >
                 닫기
               </button>
@@ -104,10 +104,10 @@ export function AffinityDetail({
         <div className="flex items-center space-x-3">
           <span className="text-2xl">{levelInfo.emoji}</span>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-foreground">
               {levelInfo.name}
             </h3>
-            <p className="text-sm text-gray-600">{levelInfo.description}</p>
+            <p className="text-sm text-muted-foreground">{levelInfo.description}</p>
           </div>
         </div>
         <span
@@ -119,7 +119,7 @@ export function AffinityDetail({
 
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">
+          <span className="text-muted-foreground">
             {progress.isMaxLevel ? '최고 레벨!' : `다음 레벨까지`}
           </span>
           <span className="font-medium">
@@ -128,19 +128,19 @@ export function AffinityDetail({
           </span>
         </div>
 
-        <div className="bg-gray-200 rounded-full h-3">
+        <div className="bg-muted rounded-full h-3">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${
               progress.isMaxLevel
-                ? 'bg-gradient-to-r from-purple-500 to-pink-500'
-                : 'bg-blue-600'
+                ? 'bg-gradient-to-r from-secondary to-primary'
+                : 'bg-tertiary'
             }`}
             style={{ width: `${Math.min(progress.progressPercent, 100)}%` }}
           />
         </div>
 
         {!progress.isMaxLevel && (
-          <div className="text-xs text-gray-500 mt-2">
+          <div className="text-xs text-muted-foreground mt-2">
             💬 대화할 때마다 {increaseRange.min}~{increaseRange.max}% 증가
           </div>
         )}

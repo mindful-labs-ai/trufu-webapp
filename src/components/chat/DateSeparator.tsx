@@ -29,11 +29,11 @@ export const DateSeparator = ({ date }: DateSeparatorProps) => {
 
   return (
     <div className="flex items-center justify-center my-6">
-      <div className="flex-1 border-t border-gray-200"></div>
-      <span className="px-4 text-sm text-gray-500 bg-gray-50 rounded-full border border-gray-200">
+      <div className="flex-1 border-t border-border"></div>
+      <span className="px-4 text-sm text-muted-foreground bg-muted rounded-full border border-border">
         {formatDate(date)}
       </span>
-      <div className="flex-1 border-t border-gray-200"></div>
+      <div className="flex-1 border-t border-border"></div>
     </div>
   );
 };
