@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
-import { Friend } from '@/types/friend';
+import { Chatbot } from '@/types/friend';
 
-export async function getAllFriends(): Promise<Friend[]> {
+export async function getAllChatbots(): Promise<Chatbot[]> {
   try {
     const { data, error } = await supabase
       .from('chatbots')
@@ -12,7 +12,7 @@ export async function getAllFriends(): Promise<Friend[]> {
 
     return data || [];
   } catch (error) {
-    console.error('Failed to fetch friends:', error);
+    console.error('Failed to fetch chatbots:', error);
     throw error;
   }
 }

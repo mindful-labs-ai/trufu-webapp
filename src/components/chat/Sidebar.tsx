@@ -1,11 +1,11 @@
 'use client';
 
-import { useFriendStore } from '@/stores/friendStore';
-import { useFriendsQuery } from '@/hooks/queries/useFriendsQuery';
+import { useChatbotsQuery } from '@/hooks/queries/useChatbotsQuery';
 import { useLatestChatSummaryQuery } from '@/hooks/queries/useLatestChatSummaryQuery';
+import { useFriendStore } from '@/stores/friendStore';
+import { useUserStore } from '@/stores/userStore';
 import type { Friend } from '@/types/friend';
 import { useMemo } from 'react';
-import { useUserStore } from '@/stores/userStore';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { selectedFriend, selectFriend } = useFriendStore();
-  const { data: availableFriends = [], isLoading } = useFriendsQuery();
+  const { data: availableFriends = [], isLoading } = useChatbotsQuery();
   const currentUser = useUserStore(s => s.me);
   const { data: chatSummaries = [] } = useLatestChatSummaryQuery(
     currentUser?.id ?? null
