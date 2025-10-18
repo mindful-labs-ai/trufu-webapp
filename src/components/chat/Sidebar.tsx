@@ -2,7 +2,10 @@
 
 import { useFriendStore } from '@/stores/friendStore';
 import { useFriendsQuery } from '@/hooks/queries/useFriendsQuery';
+import { useLatestChatSummaryQuery } from '@/hooks/queries/useLatestChatSummaryQuery';
 import type { Friend } from '@/types/friend';
+import { useMemo } from 'react';
+import { useUserStore } from '@/stores/userStore';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,6 +15,20 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { selectedFriend, selectFriend } = useFriendStore();
   const { data: availableFriends = [], isLoading } = useFriendsQuery();
+  const currentUser = useUserStore(s => s.me);
+  const { data: chatSummaries = [] } = useLatestChatSummaryQuery(
+    currentUser?.id ?? null
+  );
+
+  const lastMessageMap = useMemo(() => {
+    return chatSummaries.reduce<Record<string, string | undefined>>(
+      (acc, summary) => {
+        acc[summary.botId] = summary.lastMessage?.content;
+        return acc;
+      },
+      {}
+    );
+  }, [chatSummaries]);
 
   return (
     <>
@@ -106,7 +123,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                         {friend.name}
                       </h3>
                       <p className="text-xs mt-1 line-clamp-1 text-muted-foreground">
-                        {friend.description}
+                        {lastMessageMap[friend.id] || friend.description}
                       </p>
                     </div>
                   </div>

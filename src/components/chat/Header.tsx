@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useFriendStore } from '@/stores/friendStore';
 import { useUserStore } from '@/stores/userStore';
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -17,6 +18,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const { theme, toggleTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,6 +44,11 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
     } finally {
       setIsProfileOpen(false);
     }
+  };
+
+  const handleProfileSettings = () => {
+    router.push('/password-change');
+    setIsProfileOpen(false);
   };
 
   return (
@@ -93,6 +100,12 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
               </div>
               <button className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted">
                 프로필 설정
+              </button>
+              <button
+                onClick={handleProfileSettings}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                비밀번호 변경
               </button>
               <button
                 onClick={toggleTheme}
