@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChatService } from '@/services/chat.service';
-import { Message } from '@/types/chat';
+import { LatestChatSummary, Message } from '@/types/chat';
 import { QUERY_KEY } from '@/constants/queryKeys';
+import { updateChatSummary } from '@/utils/chatSummary';
 
 interface SendMessageParams {
   userId: string;
@@ -26,6 +27,9 @@ export function useSendMessageMutation() {
       const previousMessages = queryClient.getQueryData<Message[]>(
         QUERY_KEY.CHAT({ userId, botId })
       );
+      const previousSummary = queryClient.getQueryData<LatestChatSummary[]>(
+        QUERY_KEY.LATEST_CHAT_SUMMARY(userId)
+      );
 
       const userMessage: Message = {
         id: `${userId}_${Date.now()}`,
@@ -39,7 +43,18 @@ export function useSendMessageMutation() {
         old => [...(old || []), userMessage]
       );
 
-      return { previousMessages };
+      queryClient.setQueryData<LatestChatSummary[]>(
+        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
+        old =>
+          updateChatSummary(old || [], botId, {
+            id: userMessage.id,
+            content: userMessage.content,
+            role: 'user',
+            timestamp: new Date().toISOString(),
+          })
+      );
+
+      return { previousMessages, previousSummary };
     },
 
     onSuccess: (data, { userId, botId }) => {
@@ -54,6 +69,17 @@ export function useSendMessageMutation() {
         QUERY_KEY.CHAT({ userId, botId }),
         old => [...(old || []), assistantMessage]
       );
+
+      queryClient.setQueryData<LatestChatSummary[]>(
+        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
+        old =>
+          updateChatSummary(old || [], botId, {
+            id: assistantMessage.id,
+            content: assistantMessage.content,
+            role: 'assistant',
+            timestamp: new Date().toISOString(),
+          })
+      );
     },
 
     onError: (error, { userId, botId }, context) => {
@@ -63,6 +89,12 @@ export function useSendMessageMutation() {
         queryClient.setQueryData(
           QUERY_KEY.CHAT({ userId, botId }),
           context.previousMessages
+        );
+      }
+      if (context?.previousSummary) {
+        queryClient.setQueryData(
+          QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
+          context.previousSummary
         );
       }
 
@@ -78,12 +110,17 @@ export function useSendMessageMutation() {
         QUERY_KEY.CHAT({ userId, botId }),
         old => [...(old || []), errorMessage]
       );
-    },
 
-    onSettled: (data, error, { userId, botId }) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEY.CHAT({ userId, botId }),
-      });
+      queryClient.setQueryData<LatestChatSummary[]>(
+        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
+        old =>
+          updateChatSummary(old || [], botId, {
+            id: errorMessage.id,
+            content: errorMessage.content,
+            role: 'assistant',
+            timestamp: new Date().toISOString(),
+          })
+      );
     },
   });
 }

@@ -18,6 +18,7 @@ export default function EmailLoginPage() {
 
   const handleLoginSuccess = () => {
     redirectAfterAuth(router);
+    window.location.reload();
   };
 
   const handleLoginError = (error: string) => {
