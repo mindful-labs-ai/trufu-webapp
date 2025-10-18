@@ -94,7 +94,9 @@ export const ChatMessage = ({
             />
             <p
               className={`text-[10px] mt-2 ${
-                isUser ? 'text-primary-soft text-right' : 'text-muted-foreground'
+                isUser
+                  ? 'text-primary-soft text-right'
+                  : 'text-muted-foreground'
               }`}
             >
               {message.timestamp.toLocaleTimeString([], {

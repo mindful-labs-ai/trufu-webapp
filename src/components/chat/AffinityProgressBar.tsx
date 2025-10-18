@@ -107,7 +107,9 @@ export function AffinityDetail({
             <h3 className="text-lg font-semibold text-foreground">
               {levelInfo.name}
             </h3>
-            <p className="text-sm text-muted-foreground">{levelInfo.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {levelInfo.description}
+            </p>
           </div>
         </div>
         <span

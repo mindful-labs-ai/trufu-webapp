@@ -44,7 +44,9 @@ export default function EmailLoginPage() {
               />
             </svg>
           </div>
-          <h1 className="mt-6 text-3xl font-extrabold text-foreground">Trufu</h1>
+          <h1 className="mt-6 text-3xl font-extrabold text-foreground">
+            Trufu
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">이메일 로그인</p>
         </div>
         <div className="mt-8">

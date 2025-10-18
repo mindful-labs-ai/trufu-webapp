@@ -126,11 +126,14 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   )}
                 </div>
               </div>
+              <button className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted">
+                프로필 설정
+              </button>
               <button
                 onClick={handleProfileSettings}
                 className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
               >
-                프로필 설정
+                비밀번호 변경
               </button>
               <button
                 onClick={toggleTheme}
