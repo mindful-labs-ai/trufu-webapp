@@ -1,8 +1,12 @@
 import { useCallback } from 'react';
-import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
 import { useSendMessageMutation } from './mutations/useSendMessageMutation';
+import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
 
-export function useChat(userId: string | null, botId: string | null) {
+export function useChat(
+  userId: string | null,
+  botId: string | null,
+  botCode: string | null
+) {
   const {
     data: messages = [],
     isLoading: isLoadingHistory,
@@ -21,6 +25,7 @@ export function useChat(userId: string | null, botId: string | null) {
       await sendMessageAsync({
         userId,
         botId,
+        botCode,
         content: content.trim(),
       });
     },
