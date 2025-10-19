@@ -37,7 +37,7 @@ export function useChat(
       await sendMessageAsync({
         userId,
         botId,
-        botCode,
+        botCode: botCode || '',
         content: content.trim(),
       });
     },
