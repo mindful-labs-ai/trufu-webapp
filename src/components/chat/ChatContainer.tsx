@@ -8,7 +8,6 @@ import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 import { DateSeparator } from './DateSeparator';
-import { CurrentUser } from '@/stores/userStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '@/constants/queryKeys';
 import { Friend } from '@/types/friend';
