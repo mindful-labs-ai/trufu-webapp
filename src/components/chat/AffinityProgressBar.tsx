@@ -3,7 +3,6 @@
 import { useAffinity } from '@/hooks/useAffinity';
 import { AffinityService } from '@/services/affinity.service';
 import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
-import { useState } from 'react';
 
 interface AffinityProgressBarProps {
   userId: string;
@@ -17,7 +16,6 @@ export function AffinityProgressBar({
   messageCount = 0,
 }: AffinityProgressBarProps) {
   const { affinity, isLoading } = useAffinity({ userId, botId, messageCount });
-  const [showModal, setShowModal] = useState(false);
 
   if (isLoading) {
     return (
@@ -35,53 +33,26 @@ export function AffinityProgressBar({
   return (
     <>
       <div
-        className={`flex items-center space-x-2 w-full cursor-pointer rounded-lg p-2 transition-colors`}
-        onClick={() => setShowModal(true)}
+        className={`flex items-center space-x-2 w-full rounded-lg p-2 transition-colors`}
       >
-        <span className="text-lg">{levelInfo.emoji}</span>
+        <span className="text-lg">{levelInfo?.emoji}</span>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium text-foreground">
-            친밀도 {affinity.affinity}
+            {levelInfo?.name}
           </div>
           <div className="flex items-center space-x-2">
             <div className="flex-1 bg-muted rounded-full h-2">
               <div
                 className="bg-tertiary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress.progressPercent}%` }}
+                style={{ width: `${progress?.progressPercent}%` }}
               />
             </div>
             <span className="text-xs text-muted-foreground min-w-0">
-              {Math.round(progress.progressPercent)}%
+              {Math.round(progress?.progressPercent)}%
             </span>
           </div>
         </div>
       </div>
-
-      {showModal && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="bg-card border border-border rounded-lg max-w-md w-full mx-4 p-8"
-            onClick={e => e.stopPropagation()}
-          >
-            <AffinityDetail
-              affinity={affinity}
-              levelInfo={levelInfo}
-              progress={progress}
-            />
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-strong transition-colors"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
@@ -102,7 +73,7 @@ export function AffinityDetail({
     <>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-3">
-          <span className="text-2xl">{levelInfo.emoji}</span>
+          <span className="text-2xl">{levelInfo?.emoji}</span>
           <div>
             <h3 className="text-lg font-semibold text-foreground">
               {levelInfo.name}
