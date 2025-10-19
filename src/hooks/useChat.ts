@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
 import { useSendMessageMutation } from './mutations/useSendMessageMutation';
+import { useCreditQuery } from './queries/useCreditQuery';
 
 export function useChat(
   userId: string | null,
@@ -15,6 +16,11 @@ export function useChat(
     isLoading: isLoadingHistory,
     error: historyError,
   } = useChatHistoryQuery({ userId, botId });
+
+  const { data: creditData } = useCreditQuery({
+    type: 'openai',
+    enabled: !!userId,
+  });
 
   const { mutateAsync: sendMessageAsync, isPending: isLoading } =
     useSendMessageMutation(userId || undefined, botId || undefined);
@@ -34,6 +40,12 @@ export function useChat(
         return;
       }
 
+      if (creditData && creditData.credit <= 0) {
+        throw new Error(
+          '크레딧이 모두 소진되었습니다. 크레딧을 충전한 후 다시 시도해주세요.'
+        );
+      }
+
       await sendMessageAsync({
         userId,
         botId,
@@ -41,7 +53,7 @@ export function useChat(
         content: content.trim(),
       });
     },
-    [userId, botId, sendMessageAsync]
+    [userId, botId, botCode, sendMessageAsync, creditData]
   );
 
   return {
@@ -51,5 +63,7 @@ export function useChat(
     historyError: historyError?.message || null,
     sendMessage,
     isReady: Boolean(userId && botId),
+    hasCredit: creditData ? creditData.credit > 0 : true,
+    creditAmount: creditData?.credit ?? null,
   };
 }
