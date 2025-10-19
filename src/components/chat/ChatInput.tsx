@@ -5,11 +5,13 @@ import { useState } from 'react';
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 export const ChatInput = ({
   onSendMessage,
   disabled = false,
+  placeholder = 'Type your message here...',
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
 
@@ -37,7 +39,7 @@ export const ChatInput = ({
               value={message}
               onChange={e => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message here..."
+              placeholder={placeholder}
               disabled={disabled}
               rows={1}
               className="overflow-y-auto w-full px-4 py-3 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"

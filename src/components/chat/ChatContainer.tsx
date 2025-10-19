@@ -28,6 +28,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     historyError,
     sendMessage,
     isReady,
+    hasCredit,
+    creditAmount,
   } = useChat(
     user.id.toString(),
     selectedFriend?.id || null,
@@ -101,12 +103,16 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   }, [isLoadingHistory]);
 
   const handleSendMessage = async (message: string) => {
-    setShouldAutoScroll(true);
-    await sendMessage(message);
+    try {
+      setShouldAutoScroll(true);
+      await sendMessage(message);
 
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   useEffect(() => {
@@ -308,7 +314,16 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
         <ChatInput
           onSendMessage={handleSendMessage}
           disabled={
-            isLoading || isLoadingHistory || !selectedFriend || !isReady
+            isLoading ||
+            isLoadingHistory ||
+            !selectedFriend ||
+            !isReady ||
+            !hasCredit
+          }
+          placeholder={
+            !hasCredit
+              ? '크레딧이 모두 소진되었습니다. 크레딧을 충전해주세요.'
+              : undefined
           }
         />
       </div>
