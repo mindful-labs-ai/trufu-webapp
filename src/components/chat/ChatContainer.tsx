@@ -155,7 +155,9 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 pb-48 space-y-4"
+        className={`flex-1 overflow-y-auto p-4 ${
+          bottomImage && 'pb-48'
+        } space-y-4`}
         onScroll={handleScroll}
       >
         {historyError && (

@@ -4,7 +4,7 @@ export const CHAT_BOT_IMAGE = (botId: number | undefined) => {
       return { src: '/dopo.gif', alt: 'Dopo' };
 
     case 2:
-      return { src: '/e-book.gif', alt: 'E-book Master' };
+      return false; // TODO : 이미지 추가 { src: '/e-book.gif', alt: 'E-book Master' }
 
     default:
       return false;
