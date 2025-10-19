@@ -1,12 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY } from '@/constants/queryKeys';
 import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
-import { QUERY_KEY } from '@/constants/queryKeys';
 import { updateChatSummary } from '@/utils/chatSummary';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface SendMessageParams {
   userId: string;
   botId: string;
+  botCode: string;
   content: string;
 }
 
@@ -14,12 +15,22 @@ export function useSendMessageMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, botId, content }: SendMessageParams) => {
-      const response = await ChatService.sendMessage(userId, botId, content);
+    mutationFn: async ({
+      userId,
+      botId,
+      botCode,
+      content,
+    }: SendMessageParams) => {
+      const response = await ChatService.sendMessage(
+        userId,
+        botId,
+        botCode,
+        content
+      );
       return response;
     },
 
-    onMutate: async ({ userId, botId, content }) => {
+    onMutate: async ({ userId, botId, botCode, content }) => {
       await queryClient.cancelQueries({
         queryKey: QUERY_KEY.CHAT({ userId, botId }),
       });
