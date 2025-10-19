@@ -19,18 +19,11 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
   return useMutation({
     mutationKey: userId && botId ? ['SEND_MESSAGE', userId, botId] : undefined,
     mutationFn: async ({ userId, botId, content }: SendMessageParams) => {
-      // TODO: trufu-chat Edge Function에서 usage 정보 반환하면 활성화
-      const ENABLE_CREDIT_CHECK = false;
-
-      // 메시지 전송
       const response = await ChatService.sendMessage(userId, botId, content);
 
-      if (ENABLE_CREDIT_CHECK && response.usage?.total_tokens) {
-        // AI 응답 후 실제 토큰 사용량으로 크레딧 차감
-        const creditResult = await consumeCredit(
-          'openai',
-          response.usage.total_tokens
-        );
+      const totalTokens = response.usage?.tokenUsage?.totalTokens;
+      if (totalTokens !== undefined && totalTokens > 0) {
+        const creditResult = await consumeCredit('openai', totalTokens);
 
         if (!creditResult.ok) {
           console.warn(

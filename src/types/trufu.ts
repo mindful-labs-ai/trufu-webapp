@@ -28,9 +28,11 @@ export interface TrufuChatResponse {
     outputs: Array<TrufuChatSimpleMessage>;
   };
   usage?: {
-    prompt_tokens?: number;
-    completion_tokens?: number;
-    total_tokens?: number;
+    tokenUsage?: {
+      promptTokens?: number;
+      completionTokens?: number;
+      totalTokens?: number;
+    };
   };
 }
 

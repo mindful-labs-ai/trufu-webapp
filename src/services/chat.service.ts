@@ -68,10 +68,9 @@ export class ChatService {
       );
 
       if (responseMessage?.simpleText?.text) {
-        // TODO: trufu-chat Edge Function에서 usage 정보 반환하면 활성화
         return {
           ...responseMessage,
-          usage: data.usage, // 토큰 사용량 정보 포함
+          usage: data.usage,
         };
       }
 
