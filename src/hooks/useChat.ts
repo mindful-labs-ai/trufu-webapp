@@ -3,7 +3,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
 import { useSendMessageMutation } from './mutations/useSendMessageMutation';
 
-export function useChat(userId: string | null, botId: string | null) {
+export function useChat(
+  userId: string | null,
+  botId: string | null,
+  botCode: string | null
+) {
   const queryClient = useQueryClient();
 
   const {
@@ -33,6 +37,7 @@ export function useChat(userId: string | null, botId: string | null) {
       await sendMessageAsync({
         userId,
         botId,
+        botCode,
         content: content.trim(),
       });
     },

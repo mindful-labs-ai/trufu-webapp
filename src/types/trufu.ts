@@ -1,24 +1,17 @@
 export interface TrufuChatRequest {
-  intent: {
-    id: string;
-    name: string;
-  };
   userRequest: {
     timezone: string;
-    params: {
-      ignoreMe?: string;
-    };
+    params: {};
     utterance: string;
     lang: string | null;
     user: {
       id: string;
-      type: string;
       properties: Record<string, unknown>;
     };
   };
   bot: {
     id: string;
-    name: string;
+    code: string;
   };
 }
 

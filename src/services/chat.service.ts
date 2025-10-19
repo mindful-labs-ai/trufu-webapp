@@ -18,30 +18,25 @@ export class ChatService {
   static async sendMessage(
     userId: string,
     botId: string,
-    message: string
+    botCode: string,
+    message: string,
+    params: { [key: string]: unknown } = {}
   ): Promise<TrufuChatSimpleMessage & { usage?: TrufuChatResponse['usage'] }> {
     try {
       const requestBody: TrufuChatRequest = {
-        intent: {
-          id: this.DEFAULT_BLOCK_ID,
-          name: 'trufu-chat',
-        },
         userRequest: {
           timezone: 'Asia/Seoul',
-          params: {
-            ignoreMe: 'true',
-          },
+          params: params,
           utterance: message,
-          lang: null,
+          lang: 'ko',
           user: {
             id: userId,
-            type: 'accountId',
             properties: {},
           },
         },
         bot: {
           id: botId,
-          name: 'Trufu AI',
+          code: botCode,
         },
       };
 

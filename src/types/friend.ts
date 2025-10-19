@@ -2,7 +2,7 @@ export interface Chatbot {
   id: string;
   name: string;
   description: string;
-  system_prompt: string;
+  agent_code: string;
   avatar?: string;
   created_at: string;
   updated_at: string;

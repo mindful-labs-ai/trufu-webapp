@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
-import { Friend } from '@/types/friend';
+import { Chatbot } from '@/types/friend';
 
-export async function getAllFriends(): Promise<Friend[]> {
+export async function getAllChatbots(): Promise<Chatbot[]> {
   try {
     // @deprecated 임시로 chatbots 테이블 사용 (unread 필드는 클라이언트에서 관리)
     const { data, error } = await supabase
@@ -23,7 +23,7 @@ export async function getAllFriends(): Promise<Friend[]> {
       has_unread: undefined,
     }));
   } catch (error) {
-    console.error('Failed to fetch friends:', error);
+    console.error('Failed to fetch chatbots:', error);
     throw error;
   }
 }

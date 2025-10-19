@@ -2,6 +2,7 @@
 
 import { useChat } from '@/hooks/useChat';
 import { useFriendStore } from '@/stores/friendStore';
+import { CurrentUser } from '@/stores/userStore';
 import { useEffect, useRef, useState } from 'react';
 import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
@@ -28,7 +29,11 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     historyError,
     sendMessage,
     isReady,
-  } = useChat(user.id.toString(), selectedFriend?.id || null);
+  } = useChat(
+    user.id.toString(),
+    selectedFriend?.id || null,
+    selectedFriend?.agent_code || null
+  );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
