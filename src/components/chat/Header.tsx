@@ -5,6 +5,7 @@ import { useFriendStore } from '@/stores/friendStore';
 import { useUserStore } from '@/stores/userStore';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCreditQuery } from '@/hooks/queries/useCreditQuery';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -19,6 +20,11 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const { data: creditData, isLoading: isCreditLoading } = useCreditQuery({
+    type: 'openai',
+    enabled: !!me,
+  });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -97,13 +103,35 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 <p className="text-xs text-muted-foreground mt-1">
                   {me?.isAdmin ? '관리자' : '일반 사용자'}
                 </p>
+                {/* 크레딧 표시 */}
+                <div className="mt-2 pt-2 border-t border-border/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      크레딧
+                    </span>
+                    {isCreditLoading ? (
+                      <span className="text-xs text-muted-foreground">
+                        로딩 중...
+                      </span>
+                    ) : (
+                      <span className="text-sm font-semibold text-foreground">
+                        {creditData?.credit?.toLocaleString() ?? 0}
+                      </span>
+                    )}
+                  </div>
+                  {creditData && !creditData.allowed && (
+                    <p className="text-xs text-red-500 mt-1">
+                      크레딧이 부족합니다
+                    </p>
+                  )}
+                </div>
               </div>
               <button className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted">
                 프로필 설정
               </button>
               <button
                 onClick={handleProfileSettings}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
               >
                 비밀번호 변경
               </button>

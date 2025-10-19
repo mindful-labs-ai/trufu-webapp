@@ -40,9 +40,9 @@ export const ChatInput = ({
               placeholder="Type your message here..."
               disabled={disabled}
               rows={1}
-              className="w-full px-4 py-3 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"
+              className="overflow-y-auto w-full px-4 py-3 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"
               style={{
-                height: '48px',
+                height: '50px',
                 maxHeight: '120px',
               }}
             />

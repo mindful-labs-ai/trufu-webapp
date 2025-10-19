@@ -2,6 +2,9 @@ import { QUERY_KEY } from '@/constants/queryKeys';
 import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
 import { updateChatSummary } from '@/utils/chatSummary';
+import { Friend } from '@/types/friend';
+import { useFriendStore } from '@/stores/friendStore';
+import { consumeCredit } from '@/services/token-client.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface SendMessageParams {
@@ -11,10 +14,11 @@ interface SendMessageParams {
   content: string;
 }
 
-export function useSendMessageMutation() {
+export function useSendMessageMutation(userId?: string, botId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: userId && botId ? ['SEND_MESSAGE', userId, botId] : undefined,
     mutationFn: async ({
       userId,
       botId,
@@ -27,6 +31,19 @@ export function useSendMessageMutation() {
         botCode,
         content
       );
+
+      const totalTokens = response.usage?.tokenUsage?.totalTokens;
+      if (totalTokens !== undefined && totalTokens > 0) {
+        const creditResult = await consumeCredit('openai', totalTokens);
+
+        if (!creditResult.ok) {
+          console.warn(
+            'Credit consumption failed after message sent:',
+            creditResult
+          );
+        }
+      }
+
       return response;
     },
 
@@ -91,6 +108,34 @@ export function useSendMessageMutation() {
             timestamp: new Date().toISOString(),
           })
       );
+
+      const currentSelectedFriend = useFriendStore.getState().selectedFriend;
+      const isCurrentlyViewing = currentSelectedFriend?.id === botId;
+
+      if (!isCurrentlyViewing) {
+        queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
+          old?.map(friend =>
+            friend.id === botId
+              ? {
+                  ...friend,
+                  unread_count: (friend.unread_count || 0) + 1,
+                  has_unread: true,
+                }
+              : friend
+          )
+        );
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEY.CREDIT('openai'),
+      });
+
+      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
+      // 1. 현재 보고 있는 채팅방일 경우 assistantMessage.id를 last_read_message_id로 업데이트
+      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
+      //    - Body: { last_read_message_id: assistantMessage.id }
+      // 2. 위의 클라이언트 unread 증가 로직 제거
+      // 3. 서버의 chatbots_with_unread 뷰에서 자동으로 unread 계산
     },
 
     onError: (error, { userId, botId }, context) => {
@@ -109,10 +154,16 @@ export function useSendMessageMutation() {
         );
       }
 
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEY.CREDIT('openai'),
+      });
+
       const errorMessage: Message = {
         id: `error_${Date.now()}`,
         content:
-          'Sorry, I encountered an error while processing your message. Please try again.',
+          error instanceof Error && error.message.includes('크레딧')
+            ? error.message
+            : 'Sorry, I encountered an error while processing your message. Please try again.',
         role: 'assistant',
         timestamp: new Date(),
       };

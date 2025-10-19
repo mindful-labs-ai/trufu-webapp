@@ -8,6 +8,10 @@ import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 import { DateSeparator } from './DateSeparator';
+import { useQueryClient } from '@tanstack/react-query';
+import { QUERY_KEY } from '@/constants/queryKeys';
+import { Friend } from '@/types/friend';
+import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
 
 interface ChatContainerProps {
   user: CurrentUser;
@@ -15,6 +19,7 @@ interface ChatContainerProps {
 
 export const ChatContainer = ({ user }: ChatContainerProps) => {
   const { selectedFriend } = useFriendStore();
+  const queryClient = useQueryClient();
 
   const {
     messages,
@@ -33,6 +38,29 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+
+  // 채팅방 선택 시 현재 보고 있는 채팅방의 unread를 0으로 표시 (클라이언트 상태)
+  useEffect(() => {
+    if (selectedFriend?.id) {
+      queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
+        old?.map(friend =>
+          friend.id === selectedFriend.id
+            ? { ...friend, unread_count: 0, has_unread: false }
+            : friend
+        )
+      );
+
+      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
+      // 1. 현재 채팅방의 마지막 메시지 ID를 서버에 전송
+      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
+      //    - Body: { last_read_message_id: messages[messages.length - 1]?.id }
+      // 2. 위의 클라이언트 unread 리셋 로직 제거
+      // 3. 친구 목록 refetch하여 서버의 최신 unread 상태 반영
+      //    - queryClient.invalidateQueries({ queryKey: QUERY_KEY.FRIENDS() })
+    }
+  }, [selectedFriend?.id, queryClient]);
+
+  const bottomImage = CHAT_BOT_IMAGE(selectedFriend?.id as number | undefined);
 
   const scrollToBottom = (force = false) => {
     if (shouldAutoScroll || force) {
@@ -127,7 +155,9 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 pb-32 space-y-4"
+        className={`flex-1 overflow-y-auto p-4 ${
+          bottomImage && 'pb-48'
+        } space-y-4`}
         onScroll={handleScroll}
       >
         {historyError && (
@@ -234,6 +264,17 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
         {!isLoadingHistory && messages.length === 0 && (
           <div ref={messagesEndRef} />
         )}
+
+        {/* dopo.gif 고정 이미지 - 스크롤 영역 하단 고정 */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
+          {bottomImage && (
+            <img
+              src={bottomImage.src}
+              alt={bottomImage.alt}
+              className="w-72 h-72 object-cover"
+            />
+          )}
+        </div>
       </div>
 
       <div className="relative">

@@ -21,7 +21,7 @@ export class ChatService {
     botCode: string,
     message: string,
     params: { [key: string]: unknown } = {}
-  ): Promise<TrufuChatSimpleMessage> {
+  ): Promise<TrufuChatSimpleMessage & { usage?: TrufuChatResponse['usage'] }> {
     try {
       const requestBody: TrufuChatRequest = {
         userRequest: {
@@ -63,7 +63,10 @@ export class ChatService {
       );
 
       if (responseMessage?.simpleText?.text) {
-        return responseMessage;
+        return {
+          ...responseMessage,
+          usage: data.usage,
+        };
       }
 
       return {

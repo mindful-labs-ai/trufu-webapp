@@ -1,12 +1,15 @@
 import { useCallback } from 'react';
-import { useSendMessageMutation } from './mutations/useSendMessageMutation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
+import { useSendMessageMutation } from './mutations/useSendMessageMutation';
 
 export function useChat(
   userId: string | null,
   botId: string | null,
   botCode: string | null
 ) {
+  const queryClient = useQueryClient();
+
   const {
     data: messages = [],
     isLoading: isLoadingHistory,
@@ -14,7 +17,16 @@ export function useChat(
   } = useChatHistoryQuery({ userId, botId });
 
   const { mutateAsync: sendMessageAsync, isPending: isLoading } =
-    useSendMessageMutation();
+    useSendMessageMutation(userId || undefined, botId || undefined);
+
+  const mutationKey =
+    userId && botId ? ['SEND_MESSAGE', userId, botId] : undefined;
+  const mutationState = queryClient.getMutationCache().find({
+    mutationKey,
+    predicate: mutation => mutation.state.status === 'pending',
+  });
+
+  const actualIsLoading = mutationState ? true : isLoading;
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -34,7 +46,7 @@ export function useChat(
 
   return {
     messages,
-    isLoading,
+    isLoading: actualIsLoading,
     isLoadingHistory,
     historyError: historyError?.message || null,
     sendMessage,

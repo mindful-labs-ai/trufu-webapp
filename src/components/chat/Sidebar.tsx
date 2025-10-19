@@ -123,10 +123,21 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                       {friend?.name?.charAt(0)}
                     </div>
 
-                    <div className="flex-1">
-                      <h3 className="font-medium text-sm line-clamp-1">
-                        {friend.name}
-                      </h3>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-medium text-sm line-clamp-1 flex-1">
+                          {friend.name}
+                        </h3>
+                        {friend.has_unread &&
+                          friend.unread_count &&
+                          friend.unread_count > 0 && (
+                            <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs font-semibold px- py-0.5 rounded-full min-w-[20px] text-center">
+                              {friend.unread_count > 99
+                                ? '99+'
+                                : friend.unread_count}
+                            </span>
+                          )}
+                      </div>
                       <p className="text-xs mt-1 line-clamp-1 text-muted-foreground">
                         {lastMessageMap[friend.id] || friend.description}
                       </p>
