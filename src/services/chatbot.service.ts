@@ -17,6 +17,7 @@ export async function getAllChatbots(): Promise<Chatbot[]> {
       description: item.description || '',
       system_prompt: item.system_prompt || '',
       avatar: item.avatar || undefined,
+      agent_code: item.agent_code || '',
       created_at: item.created_at,
       updated_at: item.updated_at,
       unread_count: undefined,
