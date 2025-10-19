@@ -11,6 +11,7 @@ import { CurrentUser } from '@/stores/userStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '@/constants/queryKeys';
 import { Friend } from '@/types/friend';
+import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
 
 interface ChatContainerProps {
   user: CurrentUser;
@@ -54,6 +55,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
       //    - queryClient.invalidateQueries({ queryKey: QUERY_KEY.FRIENDS() })
     }
   }, [selectedFriend?.id, queryClient]);
+
+  const bottomImage = CHAT_BOT_IMAGE(selectedFriend?.id as number | undefined);
 
   const scrollToBottom = (force = false) => {
     if (shouldAutoScroll || force) {
@@ -258,7 +261,13 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
         {/* dopo.gif 고정 이미지 - 스크롤 영역 하단 고정 */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
-          <img src="/dopo.gif" alt="Dopo" className="w-72 h-72 object-cover" />
+          {bottomImage && (
+            <img
+              src={bottomImage.src}
+              alt={bottomImage.alt}
+              className="w-72 h-72 object-cover"
+            />
+          )}
         </div>
       </div>
 
