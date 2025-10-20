@@ -4,6 +4,8 @@ export interface Chatbot {
   description: string;
   agent_code: string;
   avatar?: string;
+  order?: number | null;
+
   created_at: string;
   updated_at: string;
 }
