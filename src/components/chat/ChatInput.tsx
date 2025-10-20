@@ -11,7 +11,7 @@ interface ChatInputProps {
 export const ChatInput = ({
   onSendMessage,
   disabled = false,
-  placeholder = 'Type your message here...',
+  placeholder = '메세지를 입력해주세요.',
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
 
@@ -42,7 +42,7 @@ export const ChatInput = ({
               placeholder={placeholder}
               disabled={disabled}
               rows={1}
-              className="overflow-y-auto w-full px-4 py-3 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"
+              className="overflow-y-auto text-sm w-full px-4 py-3.5 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"
               style={{
                 height: '50px',
                 maxHeight: '120px',

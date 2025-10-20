@@ -320,11 +320,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             !isReady ||
             !hasCredit
           }
-          placeholder={
-            !hasCredit
-              ? '크레딧이 모두 소진되었습니다. 크레딧을 충전해주세요.'
-              : undefined
-          }
+          placeholder={!hasCredit ? '크레딧이 모두 소진되었습니다.' : undefined}
         />
       </div>
     </div>
