@@ -33,7 +33,7 @@ export const ChatMessage = ({
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`flex max-w-[90%] ${
+        className={`flex max-w-[90%] sm:max-w-[90%] md:max-w-[70%] ${
           isUser ? 'flex-row-reverse' : 'flex-row'
         } space-x-2`}
       >
@@ -85,7 +85,7 @@ export const ChatMessage = ({
             )}
 
             <div
-              className={`text-sm leading-relaxed break-keep text-left ${
+              className={`text-sm leading-relaxed text-pretty break-all text-left ${
                 isUser || 'pr-5'
               } [&>p]:mb-2 [&>p:last-child]:mb-0 [&>h1]:text-lg [&>h1]:font-bold [&>h2]:text-base [&>h2]:font-semibold [&>h3]:text-sm [&>h3]:font-medium [&>code]:text-xs [&>pre]:text-xs`}
               dangerouslySetInnerHTML={{

@@ -68,7 +68,11 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
   const scrollToBottom = (force = false) => {
     if (shouldAutoScroll || force) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest',
+      });
     }
   };
 
@@ -91,8 +95,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   useEffect(() => {
     if (!isLoadingHistory) {
       const timeoutId = setTimeout(() => {
-        scrollToBottom();
-      }, 100);
+        scrollToBottom(true);
+      }, 300);
 
       return () => clearTimeout(timeoutId);
     }
@@ -100,7 +104,9 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
   useEffect(() => {
     if (!isLoadingHistory && messages.length > 0) {
-      scrollToBottom();
+      setTimeout(() => {
+        scrollToBottom(false);
+      }, 300);
     }
   }, [isLoadingHistory]);
 
@@ -111,7 +117,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
       setTimeout(() => {
         scrollToBottom();
-      }, 100);
+      }, 300);
     } catch (error) {
       console.error('Failed to send message:', error);
     }
@@ -199,9 +205,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
       <div
         ref={chatContainerRef}
-        className={`flex-1 overflow-y-auto p-4 ${
-          bottomImage && 'pb-48'
-        } space-y-4`}
+        className="flex-1 overflow-y-auto p-4 pb-0 space-y-4"
         onScroll={handleScroll}
       >
         {historyError && (
@@ -252,7 +256,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             </div>
           </div>
         ) : (
-          <div className="max-w-[720px] mx-auto space-y-4">
+          <div className="flex flex-col flex-1 max-w-[720px] mx-auto gap-y-4">
             {messages.map((message, index) => {
               const showDateSeparator =
                 index === 0 ||
@@ -302,23 +306,23 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
+            <div className={`${bottomImage && 'pb-40'}`} />
+            <div ref={messagesEndRef} style={{ height: '16px' }} />
           </div>
         )}
         {!isLoadingHistory && messages.length === 0 && (
           <div ref={messagesEndRef} />
         )}
+      </div>
 
-        {/* dopo.gif 고정 이미지 - 스크롤 영역 하단 고정 */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
-          {bottomImage && (
-            <img
-              src={bottomImage.src}
-              alt={bottomImage.alt}
-              className="w-72 h-72 scale-75 md:scale-100 object-cover"
-            />
-          )}
-        </div>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
+        {bottomImage && (
+          <img
+            src={bottomImage.src}
+            alt={bottomImage.alt}
+            className="w-72 h-72 scale-75 md:scale-100 object-cover"
+          />
+        )}
       </div>
 
       <div className="relative">

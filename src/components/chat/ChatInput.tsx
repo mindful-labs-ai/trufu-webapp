@@ -54,7 +54,7 @@ export const ChatInput = ({
   };
 
   return (
-    <div className="border-t border-border bg-card p-4">
+    <div className="sticky bottom-0 border-t border-border bg-card p-4">
       <div className="max-w-[720px] mx-auto">
         <form onSubmit={handleSubmit} className="flex space-x-3">
           <div className="flex-1 relative">
