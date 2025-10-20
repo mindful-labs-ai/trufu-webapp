@@ -1,6 +1,5 @@
 'use client';
 
-import { useAffinity } from '@/hooks/useAffinity';
 import { AffinityService } from '@/services/affinity.service';
 import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
 
@@ -15,19 +14,7 @@ export function AffinityProgressBar({
   botId,
   messageCount = 0,
 }: AffinityProgressBarProps) {
-  const { affinity, isLoading } = useAffinity({ userId, botId, messageCount });
-
-  if (isLoading) {
-    return (
-      <div className={`animate-pulse max-w-[720px] mx-auto`}>
-        <div className="h-4 bg-muted rounded w-24"></div>
-      </div>
-    );
-  }
-
-  if (!affinity) return null;
-
-  const levelInfo = AFFINITY_LEVELS[affinity.affinity];
+  const levelInfo = AFFINITY_LEVELS[affinity.affinity!]; // null check already done above
   const progress = AffinityService.calculateProgressToNextLevel(affinity);
 
   return (

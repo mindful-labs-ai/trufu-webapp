@@ -6,6 +6,7 @@ export interface Chatbot {
   avatar?: string;
   order?: number | null;
   locked: boolean;
+  has_affinity: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -1,17 +1,17 @@
 'use client';
 
+import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
+import { QUERY_KEY } from '@/constants/queryKeys';
 import { useChat } from '@/hooks/useChat';
 import { useFriendStore } from '@/stores/friendStore';
 import { CurrentUser } from '@/stores/userStore';
+import { Friend } from '@/types/friend';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
 import { DateSeparator } from './DateSeparator';
-import { useQueryClient } from '@tanstack/react-query';
-import { QUERY_KEY } from '@/constants/queryKeys';
-import { Friend } from '@/types/friend';
-import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
 
 interface ChatContainerProps {
   user: CurrentUser;
@@ -150,13 +150,11 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   return (
     <div className="flex-1 flex flex-col h-full relative">
       {selectedFriend && messages.length > 0 && (
-        <div className="border-b border-border p-3 bg-card">
-          <ChatContainerHeader
-            user={user}
-            chatbot={selectedFriend}
-            messageCount={messages.length}
-          />
-        </div>
+        <ChatContainerHeader
+          user={user}
+          chatbot={selectedFriend}
+          messageCount={messages.length}
+        />
       )}
 
       <div

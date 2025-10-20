@@ -22,6 +22,7 @@ export async function getAllChatbots(): Promise<Chatbot[]> {
       agent_code: item.agent_code || '',
       order: item.order || null,
       locked: item.locked || false,
+      has_affinity: item.has_affinity || false,
       created_at: item.created_at,
       updated_at: item.updated_at,
       unread_count: undefined,
@@ -44,7 +45,7 @@ export async function getAllFriends(): Promise<Friend[]> {
   try {
     const { data, error } = await supabase
       .from('chatbots_with_unread')
-      .select('chatbot_id, name, avatar_url, unread_count, has_unread, description, system_prompt, order, locked, created_at, updated_at')
+      .select('chatbot_id, name, avatar_url, unread_count, has_unread, description, system_prompt, order, locked, has_affinity, created_at, updated_at')
       .order('locked', { ascending: true })  // false first, true last
       .order('order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true });
@@ -59,6 +60,7 @@ export async function getAllFriends(): Promise<Friend[]> {
       avatar: item.avatar_url || undefined,
       order: item.order || null,
       locked: item.locked || false,
+      has_affinity: item.has_affinity || false,
       created_at: item.created_at,
       updated_at: item.updated_at,
       unread_count: item.unread_count,

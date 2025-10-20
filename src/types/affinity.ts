@@ -2,8 +2,8 @@ export interface Affinity {
   id: number;
   bot_id: string;
   user_id: string;
-  affinity: number;
-  affinity_progress: number; // 0-100
+  affinity: number | null;
+  affinity_progress: number | null; // 0-100
   created_at: string;
   updated_at: string;
 }
