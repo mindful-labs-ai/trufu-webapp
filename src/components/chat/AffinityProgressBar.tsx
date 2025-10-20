@@ -4,16 +4,13 @@ import { AffinityService } from '@/services/affinity.service';
 import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
 
 interface AffinityProgressBarProps {
-  userId: string;
-  botId: string;
-  messageCount?: number; // AI 응답 시 증가하는 메시지 수
+  affinity: Affinity;
+  // userId: string;
+  // botId: string;
+  // messageCount?: number; // AI 응답 시 증가하는 메시지 수
 }
 
-export function AffinityProgressBar({
-  userId,
-  botId,
-  messageCount = 0,
-}: AffinityProgressBarProps) {
+export function AffinityProgressBar({ affinity }: AffinityProgressBarProps) {
   const levelInfo = AFFINITY_LEVELS[affinity.affinity!]; // null check already done above
   const progress = AffinityService.calculateProgressToNextLevel(affinity);
 

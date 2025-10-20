@@ -24,8 +24,9 @@ export function ChatContainerHeader({
 
   if (
     isLoading ||
-    affinity?.affinity === null ||
-    affinity?.affinity_progress === null
+    affinity === null ||
+    affinity.affinity === null ||
+    affinity.affinity_progress === null
   ) {
     return null;
   }
@@ -34,9 +35,10 @@ export function ChatContainerHeader({
     <div className="border-b border-border p-3 bg-card">
       <div className="flex flex-col items-center space-y-2 max-w-[600px] mx-auto">
         <AffinityProgressBar
-          userId={user.id.toString()}
-          botId={chatbot.id}
-          messageCount={messageCount}
+          affinity={affinity!}
+          // userId={user.id.toString()}
+          // botId={chatbot.id}
+          // messageCount={messageCount}
         />
       </div>
     </div>
