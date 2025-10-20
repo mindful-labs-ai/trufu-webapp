@@ -279,18 +279,20 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             })}
             {isLoading && (
               <div className="flex flex-row space-x-2 justify-start">
-                <div
-                  className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
-                >
-                  <span className="text-primary-foreground text-sm font-medium">
-                    {selectedFriend?.name?.charAt(0).toUpperCase() || 'B'}
-                  </span>
+                <div className="flex-shrink-0 pl-2 mr-2">
+                  <div
+                    className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
+                  >
+                    <span className="text-primary-foreground text-sm font-medium">
+                      {selectedFriend?.name?.charAt(0).toUpperCase() || 'B'}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-500 mb-1">
                     {selectedFriend?.name}
                   </span>
-                  <div className="bg-muted rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
+                  <div className="bg-message-bg rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-foreground rounded-full animate-bounce"></div>
                       <div
