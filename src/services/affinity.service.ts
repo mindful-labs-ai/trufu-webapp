@@ -8,7 +8,6 @@ export class AffinityService {
     botId: string
   ): Promise<Affinity | null> {
     try {
-      // First, check if the chatbot has affinity enabled
       const { data: chatbotData, error: chatbotError } = await supabase
         .from('chatbots')
         .select('has_affinity')
@@ -20,7 +19,6 @@ export class AffinityService {
         return null;
       }
 
-      // Set affinity values based on chatbot's has_affinity setting
       const affinityValue = chatbotData.has_affinity ? 1 : null;
       const affinityProgress = chatbotData.has_affinity ? 0.0 : null;
 

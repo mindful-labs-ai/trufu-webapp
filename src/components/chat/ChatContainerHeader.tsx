@@ -34,12 +34,7 @@ export function ChatContainerHeader({
   return (
     <div className="border-b border-border p-3 bg-card">
       <div className="flex flex-col items-center space-y-2 max-w-[600px] mx-auto">
-        <AffinityProgressBar
-          affinity={affinity!}
-          // userId={user.id.toString()}
-          // botId={chatbot.id}
-          // messageCount={messageCount}
-        />
+        <AffinityProgressBar affinity={affinity!} />
       </div>
     </div>
   );

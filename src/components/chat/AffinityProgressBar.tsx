@@ -5,9 +5,6 @@ import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
 
 interface AffinityProgressBarProps {
   affinity: Affinity;
-  // userId: string;
-  // botId: string;
-  // messageCount?: number; // AI 응답 시 증가하는 메시지 수
 }
 
 export function AffinityProgressBar({ affinity }: AffinityProgressBarProps) {
