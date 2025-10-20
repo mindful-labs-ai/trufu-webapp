@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -8,23 +8,46 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
+const MAX_LENGTH = 200 + 1;
+
 export const ChatInput = ({
   onSendMessage,
   disabled = false,
   placeholder = '메세지를 입력해주세요.',
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
+
+  const isOverLimit = message.length >= MAX_LENGTH;
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+
+    if (newValue.length > MAX_LENGTH) {
+      setIsShaking(true);
+      return;
+    }
+
+    setMessage(newValue);
+  };
+
+  useEffect(() => {
+    if (isShaking) {
+      const timer = setTimeout(() => setIsShaking(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isShaking]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim() && !disabled) {
+    if (message.trim() && !disabled && !isOverLimit) {
       onSendMessage(message.trim());
       setMessage('');
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
     }
@@ -35,14 +58,43 @@ export const ChatInput = ({
       <div className="max-w-[720px] mx-auto">
         <form onSubmit={handleSubmit} className="flex space-x-3">
           <div className="flex-1 relative">
+            <style jsx>{`
+              @keyframes shake {
+                0%,
+                100% {
+                  transform: translateX(0);
+                }
+                10%,
+                30%,
+                50%,
+                70%,
+                90% {
+                  transform: translateX(-4px);
+                }
+                20%,
+                40%,
+                60%,
+                80% {
+                  transform: translateX(4px);
+                }
+              }
+              .shake {
+                animation: shake 0.5s;
+              }
+            `}</style>
             <textarea
               value={message}
-              onChange={e => setMessage(e.target.value)}
+              onChange={handleChange}
               onKeyPress={handleKeyPress}
               placeholder={placeholder}
               disabled={disabled}
+              maxLength={MAX_LENGTH}
               rows={1}
-              className="overflow-y-auto text-sm w-full px-4 py-3.5 border border-input rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground"
+              className={`overflow-y-auto text-sm w-full px-4 py-3.5 border rounded-2xl resize-none focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground transition-colors ${
+                isOverLimit
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-input focus:ring-primary focus:border-transparent'
+              } ${isShaking ? 'shake' : ''}`}
               style={{
                 height: '50px',
                 maxHeight: '120px',
@@ -52,7 +104,7 @@ export const ChatInput = ({
 
           <button
             type="submit"
-            disabled={!message.trim() || disabled}
+            disabled={!message.trim() || disabled || isOverLimit}
             className="px-6 bg-primary text-primary-foreground rounded-2xl hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:bg-muted-bg disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors h-[48px] flex items-center justify-center"
           >
             <img

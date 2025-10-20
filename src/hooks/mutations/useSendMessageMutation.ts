@@ -14,6 +14,8 @@ interface SendMessageParams {
   content: string;
 }
 
+const MAX_MESSAGE_LENGTH = 200;
+
 export function useSendMessageMutation(userId?: string, botId?: string) {
   const queryClient = useQueryClient();
 
@@ -25,6 +27,12 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
       botCode,
       content,
     }: SendMessageParams) => {
+      if (content.length > MAX_MESSAGE_LENGTH) {
+        throw new Error(
+          `메시지는 최대 ${MAX_MESSAGE_LENGTH}자까지 입력할 수 있습니다.`
+        );
+      }
+
       const response = await ChatService.sendMessage(
         userId,
         botId,
