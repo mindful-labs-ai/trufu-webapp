@@ -1,8 +1,8 @@
 'use client';
 
+import { CurrentUser } from '@/stores/userStore';
 import { Chatbot } from '@/types/friend';
 import { AffinityProgressBar } from './AffinityProgressBar';
-import { CurrentUser } from '@/stores/userStore';
 
 interface ChatContainerHeaderProps {
   user: CurrentUser;
@@ -17,9 +17,6 @@ export function ChatContainerHeader({
 }: ChatContainerHeaderProps) {
   return (
     <div className="flex flex-col items-center space-y-2 max-w-[600px] mx-auto">
-      {/* <h1 className="text-xl font-semibold text-foreground">
-        💬 {chatbot.name}
-      </h1> */}
       <AffinityProgressBar
         userId={user.id.toString()}
         botId={chatbot.id}
