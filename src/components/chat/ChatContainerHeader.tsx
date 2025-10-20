@@ -23,6 +23,7 @@ export function ChatContainerHeader({
   });
 
   if (
+    // FIXME: chatbots 테이블의 has_affinity 보도록 수정 필요
     isLoading ||
     affinity === null ||
     affinity.affinity === null ||
