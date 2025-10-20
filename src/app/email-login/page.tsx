@@ -80,13 +80,23 @@ export default function EmailLoginPage() {
       {/* 하단 링크 */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
         <div className="flex items-center space-x-6">
-          <button className="text-muted-foreground hover:text-foreground transition-colors text-base font-bold">
+          <a 
+            href="https://trufu.imweb.me/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors text-base font-bold"
+          >
             스토어
-          </button>
+          </a>
           <span className="text-muted-foreground text-base">|</span>
-          <button className="text-muted-foreground hover:text-foreground transition-colors text-base font-bold">
+          <a 
+            href="https://www.instagram.com/d0po.mind/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors text-base font-bold"
+          >
             인스타
-          </button>
+          </a>
         </div>
       </div>
     </div>
