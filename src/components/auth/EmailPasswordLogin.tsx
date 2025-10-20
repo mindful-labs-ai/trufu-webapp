@@ -71,7 +71,7 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
       <div className="bg-card rounded-2xl px-8 pt-6 pb-8 mb-4 border border-border">
         <div className="mb-6">
           <h2 className="text-2xl pb-2 font-bold text-center text-foreground">
-            도포 AI
+            섬세한 마음의 항해법 - 도포 AI
           </h2>
           <p className="text-center text-muted-foreground mt-2">
             전자책 구매자만 이용 가능한 베타서비스 입니다.
