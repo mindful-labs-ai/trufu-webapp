@@ -131,7 +131,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                         {friend.has_unread &&
                           friend.unread_count &&
                           friend.unread_count > 0 && (
-                            <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs font-semibold px- py-0.5 rounded-full min-w-[20px] text-center">
+                            <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs font-semibold py-0.5 rounded-full min-w-[20px] text-center">
                               {friend.unread_count > 99
                                 ? '99+'
                                 : friend.unread_count}

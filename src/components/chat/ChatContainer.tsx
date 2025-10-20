@@ -12,13 +12,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '@/constants/queryKeys';
 import { Friend } from '@/types/friend';
 import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
+import { CHAT_BOT } from '@/constants/chatBotIdMapping';
 
 interface ChatContainerProps {
   user: CurrentUser;
 }
 
 export const ChatContainer = ({ user }: ChatContainerProps) => {
-  const { selectedFriend } = useFriendStore();
+  const { selectedFriend, selectFriend } = useFriendStore();
   const queryClient = useQueryClient();
 
   const {
@@ -30,6 +31,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     isReady,
     hasCredit,
     creditAmount,
+    isLoadingCredit,
   } = useChat(
     user.id.toString(),
     selectedFriend?.id || null,
@@ -130,18 +132,54 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   }, [selectedFriend]);
 
   if (!selectedFriend) {
+    const allFriends = queryClient.getQueryData<Friend[]>(QUERY_KEY.FRIENDS());
+
+    const featuredChatbotIds = [CHAT_BOT.DOPO, CHAT_BOT.Ebook] as unknown[];
+
+    const featuredFriends = allFriends?.filter(friend =>
+      featuredChatbotIds.includes(friend.id)
+    );
+
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="text-center max-w-3xl w-full">
           <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
             💬
           </div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
             대화 시작하기
           </h2>
-          <p className="text-muted-foreground max-w-md">
-            왼쪽에서 대화할 친구를 선택해주세요!
+          <p className="text-muted-foreground mb-8">
+            대화할 친구를 선택해주세요!
           </p>
+
+          {featuredFriends && featuredFriends.length > 0 && (
+            <div className="flex gap-4 px-4 items-center">
+              {featuredFriends.map(friend => (
+                <button
+                  key={friend.id}
+                  onClick={() => selectFriend(friend)}
+                  className="relative flex flex-1 flex-col gap-2 items-center p-4 rounded-lg border border-border active:bg-muted transition-all group"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <span className="text-2xl text-primary-foreground">
+                      {friend.name?.charAt(0).toUpperCase() || '💬'}
+                    </span>
+                  </div>
+                  <span className="text-md font-medium text-foreground group-hover:scale-110 transition-transform">
+                    {friend.name}
+                  </span>
+                  {friend.has_unread && (
+                    <div className="absolute top-3 translate-x-6">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-primary-foreground">
+                        {friend.unread_count || 0}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -277,7 +315,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             <img
               src={bottomImage.src}
               alt={bottomImage.alt}
-              className="w-72 h-72 object-cover"
+              className="w-72 h-72 scale-75 md:scale-100 object-cover"
             />
           )}
         </div>
@@ -318,9 +356,16 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             isLoadingHistory ||
             !selectedFriend ||
             !isReady ||
-            !hasCredit
+            !hasCredit ||
+            isLoadingCredit
           }
-          placeholder={!hasCredit ? '크레딧이 모두 소진되었습니다.' : undefined}
+          placeholder={
+            isLoadingCredit
+              ? '크레딧 정보를 확인하는 중...'
+              : !hasCredit
+              ? '크레딧이 모두 소진되었습니다.'
+              : undefined
+          }
         />
       </div>
     </div>
