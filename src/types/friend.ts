@@ -5,7 +5,7 @@ export interface Chatbot {
   agent_code: string;
   avatar?: string;
   order?: number | null;
-
+  locked: boolean;
   created_at: string;
   updated_at: string;
 }
