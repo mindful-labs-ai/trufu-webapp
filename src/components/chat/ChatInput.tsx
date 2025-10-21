@@ -9,6 +9,13 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+};
+
 export const ChatInput = ({
   onSendMessage,
   disabled = false,
@@ -16,6 +23,11 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const [message, setMessage] = useState('');
   const [isShaking, setIsShaking] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
 
   const isOverLimit = message.length >= MAX_MESSAGE_LENGTH;
 
@@ -46,9 +58,15 @@ export const ChatInput = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
+    if (e.key === 'Enter') {
+      if (isMobile) {
+        return;
+      } else {
+        if (!e.shiftKey) {
+          e.preventDefault();
+          handleSubmit(e);
+        }
+      }
     }
   };
 
