@@ -5,17 +5,20 @@ import { CurrentUser } from '@/stores/userStore';
 import { parseSimpleMarkdown, sanitizeHtml } from '@/utils/markdown';
 import { useState } from 'react';
 import { WorkflowStatsModal } from './WorkflowStatsModal';
+import { CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 
 interface ChatMessageProps {
   message: Message;
   currentUser?: CurrentUser;
   friendName?: string;
+  friendId?: string;
 }
 
 export const ChatMessage = ({
   message,
   currentUser,
   friendName,
+  friendId,
 }: ChatMessageProps) => {
   const isUser = message.role === 'user';
   const isAdmin = currentUser?.isAdmin || false;
@@ -30,6 +33,8 @@ export const ChatMessage = ({
     setShowStatsModal(null);
   };
 
+  const profileImage = CHAT_BOT_PROFILE(Number(friendId));
+
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
@@ -43,7 +48,15 @@ export const ChatMessage = ({
               className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
             >
               <span className="text-primary-foreground text-sm font-medium">
-                {friendName?.charAt(0).toUpperCase() || 'B'}
+                {profileImage ? (
+                  <img
+                    className="rounded-full object-cover"
+                    src={profileImage.src}
+                    alt={profileImage.alt}
+                  />
+                ) : (
+                  friendName?.charAt(0).toUpperCase() || 'B'
+                )}
               </span>
             </div>
           </div>

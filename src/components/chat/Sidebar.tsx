@@ -1,5 +1,6 @@
 'use client';
 
+import { CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 import { useChatbotsQuery } from '@/hooks/queries/useChatbotsQuery';
 import { useLatestChatSummaryQuery } from '@/hooks/queries/useLatestChatSummaryQuery';
 import { useFriendStore } from '@/stores/friendStore';
@@ -105,46 +106,80 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : (
-              availableFriends.map((friend: Friend) => (
-                <div
-                  key={friend.id}
-                  onClick={() => selectFriend(friend)}
-                  className={`
-                  p-3 rounded-lg cursor-pointer transition-colors duration-200
+              availableFriends.map((friend: Friend) => {
+                const profileImage = CHAT_BOT_PROFILE(Number(friend.id));
+                return (
+                  <div
+                    key={friend.id}
+                    onClick={() => !friend.locked && selectFriend(friend)}
+                    className={`
+                  p-3 rounded-lg transition-colors duration-200 relative
+                  ${
+                    friend.locked
+                      ? 'cursor-not-allowed opacity-40'
+                      : 'cursor-pointer'
+                  }
                   ${
                     selectedFriend?.id === friend.id
                       ? 'bg-muted'
+                      : friend.locked
+                      ? ''
                       : 'hover:bg-muted'
                   }
                 `}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-sm">
-                      {friend?.name?.charAt(0)}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-medium text-sm line-clamp-1 flex-1">
-                          {friend.name}
-                        </h3>
-                        {friend.has_unread &&
-                          friend.unread_count &&
-                          friend.unread_count > 0 && (
-                            <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs font-semibold py-0.5 rounded-full min-w-[20px] text-center">
-                              {friend.unread_count > 99
-                                ? '99+'
-                                : friend.unread_count}
-                            </span>
-                          )}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {friend.locked && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className="text-muted-foreground"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path d="M15.8331 7.02V5.83332C15.8331 2.61168 13.2215 0 9.99982 0C6.77814 0 4.1665 2.61168 4.1665 5.83332V7.02C2.64986 7.68191 1.66869 9.17856 1.6665 10.8333V15.8333C1.66924 18.1334 3.53311 19.9973 5.83314 20H14.1665C16.4665 19.9973 18.3304 18.1334 18.3331 15.8333V10.8333C18.331 9.17856 17.3498 7.68191 15.8331 7.02ZM10.8331 14.1667C10.8331 14.6269 10.4601 15 9.99982 15C9.53959 15 9.1665 14.6269 9.1665 14.1667V12.5C9.1665 12.0398 9.53959 11.6667 9.99982 11.6667C10.4601 11.6667 10.8331 12.0398 10.8331 12.5V14.1667V14.1667ZM14.1665 6.66668H5.83314V5.83336C5.83314 3.53219 7.69861 1.66668 9.99982 1.66668C12.301 1.66668 14.1665 3.53215 14.1665 5.83336V6.66668V6.66668Z" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-sm relative">
+                        {profileImage ? (
+                          <img
+                            className="rounded-full object-cover"
+                            src={profileImage.src}
+                            alt={profileImage.alt}
+                          />
+                        ) : (
+                          friend?.name?.charAt(0)
+                        )}
                       </div>
-                      <p className="text-xs mt-1 line-clamp-1 text-muted-foreground">
-                        {lastMessageMap[friend.id] || friend.description}
-                      </p>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="font-medium text-sm line-clamp-1 flex-1">
+                            {friend.name}
+                          </h3>
+                          {friend.locked
+                            ? null
+                            : friend.has_unread &&
+                              friend.unread_count &&
+                              friend.unread_count > 0 && (
+                                <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs font-semibold py-0.5 rounded-full min-w-[20px] text-center">
+                                  {friend.unread_count > 99
+                                    ? '99+'
+                                    : friend.unread_count}
+                                </span>
+                              )}
+                        </div>
+                        <p className="text-xs mt-1 line-clamp-1 text-muted-foreground">
+                          {lastMessageMap[friend.id] || friend.description}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

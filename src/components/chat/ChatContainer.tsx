@@ -11,7 +11,7 @@ import { DateSeparator } from './DateSeparator';
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '@/constants/queryKeys';
 import { Friend } from '@/types/friend';
-import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
+import { CHAT_BOT_IMAGE, CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 import { CHAT_BOT } from '@/constants/chatBotIdMapping';
 
 interface ChatContainerProps {
@@ -65,6 +65,10 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   }, [selectedFriend?.id, queryClient]);
 
   const bottomImage = CHAT_BOT_IMAGE(selectedFriend?.id as number | undefined);
+
+  const profileImage = CHAT_BOT_PROFILE(
+    selectedFriend?.id as number | undefined
+  );
 
   const scrollToBottom = (force = false) => {
     if (shouldAutoScroll || force) {
@@ -193,7 +197,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
   return (
     <div className="flex-1 flex flex-col h-full relative">
-      {selectedFriend && messages.length > 0 && (
+      {selectedFriend.has_affinity && messages.length > 0 && (
         <div className="border-b border-border p-3 bg-card">
           <ChatContainerHeader
             user={user}
@@ -241,7 +245,15 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 text-primary-foreground bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                {selectedFriend?.name?.charAt(0) || '💬'}
+                {profileImage ? (
+                  <img
+                    className="rounded-full object-cover"
+                    src={profileImage.src}
+                    alt={profileImage.alt}
+                  />
+                ) : (
+                  selectedFriend?.name?.charAt(0)
+                )}
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-2">
                 {selectedFriend
@@ -273,6 +285,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                     message={message}
                     currentUser={user}
                     friendName={selectedFriend?.name}
+                    friendId={selectedFriend?.id}
                   />
                 </div>
               );
@@ -284,7 +297,15 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                     className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
                   >
                     <span className="text-primary-foreground text-sm font-medium">
-                      {selectedFriend?.name?.charAt(0).toUpperCase() || 'B'}
+                      {profileImage ? (
+                        <img
+                          className="rounded-full object-cover"
+                          src={profileImage.src}
+                          alt={profileImage.alt}
+                        />
+                      ) : (
+                        selectedFriend?.name?.charAt(0)
+                      )}
                     </span>
                   </div>
                 </div>
@@ -317,12 +338,12 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
         )}
       </div>
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
+      <div className="absolute bottom-4 w-72 h-72 left-1/2 -translate-x-1/2 pointer-events-none z-0">
         {bottomImage && (
           <img
             src={bottomImage.src}
             alt={bottomImage.alt}
-            className="w-72 h-72 scale-75 md:scale-100 object-cover"
+            className="w-full h-full scale-75 md:scale-100 object-contain"
           />
         )}
       </div>
