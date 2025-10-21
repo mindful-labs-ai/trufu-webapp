@@ -3,8 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
 import { useSendMessageMutation } from './mutations/useSendMessageMutation';
 import { useCreditQuery } from './queries/useCreditQuery';
-
-const MAX_MESSAGE_LENGTH = 200;
+import { MAX_MESSAGE_LENGTH } from '@/constants/validation';
 
 export function useChat(
   userId: string | null,

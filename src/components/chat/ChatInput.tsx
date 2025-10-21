@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { MAX_MESSAGE_LENGTH } from '@/constants/validation';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
   placeholder?: string;
 }
-
-const MAX_LENGTH = 200 + 1;
 
 export const ChatInput = ({
   onSendMessage,
@@ -18,12 +17,12 @@ export const ChatInput = ({
   const [message, setMessage] = useState('');
   const [isShaking, setIsShaking] = useState(false);
 
-  const isOverLimit = message.length >= MAX_LENGTH;
+  const isOverLimit = message.length >= MAX_MESSAGE_LENGTH;
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
 
-    if (newValue.length > MAX_LENGTH) {
+    if (newValue.length > MAX_MESSAGE_LENGTH) {
       setIsShaking(true);
       return;
     }
@@ -88,7 +87,7 @@ export const ChatInput = ({
               onKeyPress={handleKeyPress}
               placeholder={placeholder}
               disabled={disabled}
-              maxLength={MAX_LENGTH}
+              maxLength={MAX_MESSAGE_LENGTH}
               rows={1}
               className={`overflow-y-auto text-sm w-full px-4 py-3.5 border rounded-2xl resize-none focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground transition-colors ${
                 isOverLimit

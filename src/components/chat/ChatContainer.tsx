@@ -1,9 +1,10 @@
 'use client';
 
 import { useChat } from '@/hooks/useChat';
+import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { useFriendStore } from '@/stores/friendStore';
 import { CurrentUser } from '@/stores/userStore';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
@@ -13,6 +14,7 @@ import { QUERY_KEY } from '@/constants/queryKeys';
 import { Friend } from '@/types/friend';
 import { CHAT_BOT_IMAGE, CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 import { CHAT_BOT } from '@/constants/chatBotIdMapping';
+import { resetUnreadCount } from '@/utils/messageCache';
 
 interface ChatContainerProps {
   user: CurrentUser;
@@ -38,21 +40,20 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     selectedFriend?.agent_code || null
   );
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const {
+    messagesEndRef,
+    chatContainerRef,
+    isUserScrolling,
+    shouldAutoScroll,
+    scrollToBottom,
+    setShouldAutoScroll,
+    handleScroll,
+  } = useAutoScroll(messages.length, isLoadingHistory);
 
   // 채팅방 선택 시 현재 보고 있는 채팅방의 unread를 0으로 표시 (클라이언트 상태)
   useEffect(() => {
     if (selectedFriend?.id) {
-      queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
-        old?.map(friend =>
-          friend.id === selectedFriend.id
-            ? { ...friend, unread_count: 0, has_unread: false }
-            : friend
-        )
-      );
+      resetUnreadCount(queryClient, selectedFriend.id);
 
       // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
       // 1. 현재 채팅방의 마지막 메시지 ID를 서버에 전송
@@ -70,50 +71,6 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     selectedFriend?.id as number | undefined
   );
 
-  const scrollToBottom = (force = false) => {
-    if (shouldAutoScroll || force) {
-      messagesEndRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest',
-      });
-    }
-  };
-
-  const handleScroll = () => {
-    const container = chatContainerRef.current;
-    if (container) {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // 50px 여유
-
-      setShouldAutoScroll(isAtBottom);
-
-      if (!isAtBottom) {
-        setIsUserScrolling(true);
-      } else {
-        setIsUserScrolling(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (!isLoadingHistory) {
-      const timeoutId = setTimeout(() => {
-        scrollToBottom(true);
-      }, 300);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [messages, isLoading, isLoadingHistory]);
-
-  useEffect(() => {
-    if (!isLoadingHistory && messages.length > 0) {
-      setTimeout(() => {
-        scrollToBottom(false);
-      }, 300);
-    }
-  }, [isLoadingHistory]);
-
   const handleSendMessage = async (message: string) => {
     try {
       setShouldAutoScroll(true);
@@ -123,23 +80,16 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
         scrollToBottom();
       }, 300);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      // Error is already handled by mutation onError
     }
   };
 
   useEffect(() => {
-    const container = chatContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      setShouldAutoScroll(true);
-    }
-  }, [selectedFriend]);
+    setShouldAutoScroll(true);
+    setTimeout(() => {
+      scrollToBottom(true);
+    }, 300);
+  }, [selectedFriend?.id, setShouldAutoScroll, scrollToBottom]);
 
   if (!selectedFriend) {
     const allFriends = queryClient.getQueryData<Friend[]>(QUERY_KEY.FRIENDS());

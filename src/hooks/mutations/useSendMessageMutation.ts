@@ -1,11 +1,15 @@
 import { QUERY_KEY } from '@/constants/queryKeys';
+import { MAX_MESSAGE_LENGTH } from '@/constants/validation';
 import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
-import { updateChatSummary } from '@/utils/chatSummary';
-import { Friend } from '@/types/friend';
 import { useFriendStore } from '@/stores/friendStore';
 import { consumeCredit } from '@/services/token-client.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  updateMessagesCache,
+  updateChatSummaryCache,
+  incrementUnreadCount,
+} from '@/utils/messageCache';
 
 interface SendMessageParams {
   userId: string;
@@ -13,8 +17,6 @@ interface SendMessageParams {
   botCode: string;
   content: string;
 }
-
-const MAX_MESSAGE_LENGTH = 200;
 
 export function useSendMessageMutation(userId?: string, botId?: string) {
   const queryClient = useQueryClient();
@@ -42,14 +44,7 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
 
       const totalTokens = response.usage?.tokenUsage?.totalTokens;
       if (totalTokens !== undefined && totalTokens > 0) {
-        const creditResult = await consumeCredit('openai', totalTokens);
-
-        if (!creditResult.ok) {
-          console.warn(
-            'Credit consumption failed after message sent:',
-            creditResult
-          );
-        }
+        await consumeCredit('openai', totalTokens);
       }
 
       return response;
@@ -74,21 +69,13 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData<Message[]>(
-        QUERY_KEY.CHAT({ userId, botId }),
-        old => [...(old || []), userMessage]
-      );
-
-      queryClient.setQueryData<LatestChatSummary[]>(
-        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old =>
-          updateChatSummary(old || [], botId, {
-            id: userMessage.id,
-            content: userMessage.content,
-            role: 'user',
-            timestamp: new Date().toISOString(),
-          })
-      );
+      updateMessagesCache(queryClient, userId, botId, userMessage);
+      updateChatSummaryCache(queryClient, userId, botId, {
+        id: userMessage.id,
+        content: userMessage.content,
+        role: 'user',
+        timestamp: new Date().toISOString(),
+      });
 
       return { previousMessages, previousSummary };
     },
@@ -101,37 +88,19 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData<Message[]>(
-        QUERY_KEY.CHAT({ userId, botId }),
-        old => [...(old || []), assistantMessage]
-      );
-
-      queryClient.setQueryData<LatestChatSummary[]>(
-        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old =>
-          updateChatSummary(old || [], botId, {
-            id: assistantMessage.id,
-            content: assistantMessage.content,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-          })
-      );
+      updateMessagesCache(queryClient, userId, botId, assistantMessage);
+      updateChatSummaryCache(queryClient, userId, botId, {
+        id: assistantMessage.id,
+        content: assistantMessage.content,
+        role: 'assistant',
+        timestamp: new Date().toISOString(),
+      });
 
       const currentSelectedFriend = useFriendStore.getState().selectedFriend;
       const isCurrentlyViewing = currentSelectedFriend?.id === botId;
 
       if (!isCurrentlyViewing) {
-        queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
-          old?.map(friend =>
-            friend.id === botId
-              ? {
-                  ...friend,
-                  unread_count: (friend.unread_count || 0) + 1,
-                  has_unread: true,
-                }
-              : friend
-          )
-        );
+        incrementUnreadCount(queryClient, botId);
       }
 
       queryClient.invalidateQueries({
@@ -147,8 +116,6 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
     },
 
     onError: (error, { userId, botId }, context) => {
-      console.error('Failed to send message:', error);
-
       if (context?.previousMessages) {
         queryClient.setQueryData(
           QUERY_KEY.CHAT({ userId, botId }),
@@ -176,21 +143,13 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData<Message[]>(
-        QUERY_KEY.CHAT({ userId, botId }),
-        old => [...(old || []), errorMessage]
-      );
-
-      queryClient.setQueryData<LatestChatSummary[]>(
-        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old =>
-          updateChatSummary(old || [], botId, {
-            id: errorMessage.id,
-            content: errorMessage.content,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-          })
-      );
+      updateMessagesCache(queryClient, userId, botId, errorMessage);
+      updateChatSummaryCache(queryClient, userId, botId, {
+        id: errorMessage.id,
+        content: errorMessage.content,
+        role: 'assistant',
+        timestamp: new Date().toISOString(),
+      });
     },
   });
 }
