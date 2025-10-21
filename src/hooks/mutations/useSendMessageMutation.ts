@@ -4,6 +4,7 @@ import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
 import { useFriendStore } from '@/stores/friendStore';
 import { consumeCredit } from '@/services/token-client.service';
+import { updateLastReadAt } from '@/services/unread.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   updateMessagesCache,
@@ -99,20 +100,15 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
       const currentSelectedFriend = useFriendStore.getState().selectedFriend;
       const isCurrentlyViewing = currentSelectedFriend?.id === botId;
 
-      if (!isCurrentlyViewing) {
+      if (isCurrentlyViewing) {
+        updateLastReadAt(userId, botId);
+      } else {
         incrementUnreadCount(queryClient, botId);
       }
 
       queryClient.invalidateQueries({
         queryKey: QUERY_KEY.CREDIT('openai'),
       });
-
-      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
-      // 1. 현재 보고 있는 채팅방일 경우 assistantMessage.id를 last_read_message_id로 업데이트
-      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
-      //    - Body: { last_read_message_id: assistantMessage.id }
-      // 2. 위의 클라이언트 unread 증가 로직 제거
-      // 3. 서버의 chatbots_with_unread 뷰에서 자동으로 unread 계산
     },
 
     onError: (error, { userId, botId }, context) => {

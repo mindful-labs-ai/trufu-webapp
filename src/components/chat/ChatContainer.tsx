@@ -15,6 +15,7 @@ import { Friend } from '@/types/friend';
 import { CHAT_BOT_IMAGE, CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 import { CHAT_BOT } from '@/constants/chatBotIdMapping';
 import { resetUnreadCount } from '@/utils/messageCache';
+import { updateLastReadAt } from '@/services/unread.service';
 
 interface ChatContainerProps {
   user: CurrentUser;
@@ -24,6 +25,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   const { selectedFriend, selectFriend } = useFriendStore();
   const queryClient = useQueryClient();
 
+  const allFriends = queryClient.getQueryData<Friend[]>(QUERY_KEY.FRIENDS());
+
   const {
     messages,
     isLoading,
@@ -32,7 +35,6 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     sendMessage,
     isReady,
     hasCredit,
-    creditAmount,
     isLoadingCredit,
   } = useChat(
     user.id.toString(),
@@ -50,38 +52,28 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     handleScroll,
   } = useAutoScroll(messages.length, isLoadingHistory);
 
-  // 채팅방 선택 시 현재 보고 있는 채팅방의 unread를 0으로 표시 (클라이언트 상태)
   useEffect(() => {
-    if (selectedFriend?.id) {
+    if (selectedFriend?.id && user.id) {
+      const hasUnread = allFriends
+        ?.filter(friend => friend.has_unread)
+        .includes(selectedFriend);
+
       resetUnreadCount(queryClient, selectedFriend.id);
-
-      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
-      // 1. 현재 채팅방의 마지막 메시지 ID를 서버에 전송
-      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
-      //    - Body: { last_read_message_id: messages[messages.length - 1]?.id }
-      // 2. 위의 클라이언트 unread 리셋 로직 제거
-      // 3. 친구 목록 refetch하여 서버의 최신 unread 상태 반영
-      //    - queryClient.invalidateQueries({ queryKey: QUERY_KEY.FRIENDS() })
+      if (hasUnread) updateLastReadAt(user.id.toString(), selectedFriend.id);
     }
-  }, [selectedFriend?.id, queryClient]);
+  }, [selectedFriend?.id, user.id, queryClient]);
 
-  const bottomImage = CHAT_BOT_IMAGE(selectedFriend?.id as number | undefined);
-
-  const profileImage = CHAT_BOT_PROFILE(
-    selectedFriend?.id as number | undefined
-  );
+  const friendId = selectedFriend?.id ? Number(selectedFriend.id) : undefined;
+  const bottomImage = CHAT_BOT_IMAGE(friendId);
+  const profileImage = CHAT_BOT_PROFILE(friendId);
 
   const handleSendMessage = async (message: string) => {
-    try {
-      setShouldAutoScroll(true);
-      await sendMessage(message);
+    setShouldAutoScroll(true);
+    await sendMessage(message);
 
-      setTimeout(() => {
-        scrollToBottom();
-      }, 300);
-    } catch (error) {
-      // Error is already handled by mutation onError
-    }
+    setTimeout(() => {
+      scrollToBottom();
+    }, 300);
   };
 
   useEffect(() => {
@@ -92,8 +84,6 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   }, [selectedFriend?.id, setShouldAutoScroll, scrollToBottom]);
 
   if (!selectedFriend) {
-    const allFriends = queryClient.getQueryData<Friend[]>(QUERY_KEY.FRIENDS());
-
     const featuredChatbotIds = [CHAT_BOT.DOPO, CHAT_BOT.Ebook] as unknown[];
 
     const featuredFriends = allFriends?.filter(friend =>

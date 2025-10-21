@@ -15,8 +15,10 @@ interface SidebarProps {
 
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const { selectedFriend, selectFriend } = useFriendStore();
-  const { data: availableFriends = [], isLoading } = useChatbotsQuery();
   const currentUser = useUserStore(s => s.me);
+  const { data: availableFriends = [], isLoading } = useChatbotsQuery({
+    userId: currentUser?.id.toString(),
+  });
   const { data: chatSummaries = [] } = useLatestChatSummaryQuery(
     currentUser?.id ?? null
   );
@@ -160,17 +162,16 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                           <h3 className="font-medium text-sm line-clamp-1 flex-1">
                             {friend.name}
                           </h3>
-                          {friend.locked
-                            ? null
-                            : friend.has_unread &&
-                              friend.unread_count &&
-                              friend.unread_count > 0 && (
-                                <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs font-semibold py-0.5 rounded-full min-w-[20px] text-center">
-                                  {friend.unread_count > 99
-                                    ? '99+'
-                                    : friend.unread_count}
-                                </span>
-                              )}
+                          {!friend.locked &&
+                            friend.has_unread &&
+                            friend.unread_count &&
+                            friend.unread_count > 0 && (
+                              <span className="flex-shrink-0 bg-red-600 text-primary-foreground text-xs rounded-full min-w-[20px] text-center">
+                                {friend.unread_count > 99
+                                  ? '99+'
+                                  : friend.unread_count}
+                              </span>
+                            )}
                         </div>
                         <p className="text-xs mt-1 line-clamp-1 text-muted-foreground">
                           {lastMessageMap[friend.id] || friend.description}
