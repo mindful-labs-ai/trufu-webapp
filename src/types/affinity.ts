@@ -19,14 +19,14 @@ export interface AffinityLevelInfo {
 export const AFFINITY_LEVELS: Record<number, AffinityLevelInfo> = {
   1: {
     level: 1,
-    name: '아는 사람',
+    name: '아직은 어색한 사이',
     description: '보통 얘기를 들어주는 포지션',
     color: 'bg-muted text-foreground',
     emoji: '👋',
   },
   2: {
     level: 2,
-    name: '그냥 친구',
+    name: '서로 알아가는 단계',
     description: '필요한 말을 해주는 관계',
     color: 'bg-primary-soft text-primary-strong',
     emoji: '😊',
@@ -40,7 +40,7 @@ export const AFFINITY_LEVELS: Record<number, AffinityLevelInfo> = {
   },
   4: {
     level: 4,
-    name: '찐 친구',
+    name: '베스트 프렌드',
     description: '진심어린 공감과 격려',
     color: 'bg-secondary-soft text-secondary-strong',
     emoji: '💖',

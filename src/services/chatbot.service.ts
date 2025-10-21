@@ -7,6 +7,8 @@ export async function getAllChatbots(): Promise<Chatbot[]> {
     const { data, error } = await supabase
       .from('chatbots')
       .select('*')
+      .order('locked', { ascending: true })
+      .order('order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
@@ -18,6 +20,8 @@ export async function getAllChatbots(): Promise<Chatbot[]> {
       system_prompt: item.system_prompt || '',
       avatar: item.avatar || undefined,
       agent_code: item.agent_code || '',
+      order: item.order || null,
+      locked: item.locked || false,
       created_at: item.created_at,
       updated_at: item.updated_at,
       unread_count: undefined,
@@ -40,8 +44,10 @@ export async function getAllFriends(): Promise<Friend[]> {
   try {
     const { data, error } = await supabase
       .from('chatbots_with_unread')
-      .select('chatbot_id, name, avatar_url, unread_count, has_unread, description, system_prompt, created_at, updated_at')
-      .order('name', { ascending: true });
+      .select('chatbot_id, name, avatar_url, unread_count, has_unread, description, system_prompt, order, locked, created_at, updated_at')
+      .order('locked', { ascending: true })  // false first, true last
+      .order('order', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
 
@@ -51,6 +57,8 @@ export async function getAllFriends(): Promise<Friend[]> {
       description: item.description || '',
       system_prompt: item.system_prompt || '',
       avatar: item.avatar_url || undefined,
+      order: item.order || null,
+      locked: item.locked || false,
       created_at: item.created_at,
       updated_at: item.updated_at,
       unread_count: item.unread_count,
