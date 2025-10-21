@@ -1,13 +1,16 @@
 'use client';
 
-import { useAffinity } from '@/hooks/useAffinity';
+import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAffinityQuery } from '@/hooks/queries/useAffinityQuery';
 import { AffinityService } from '@/services/affinity.service';
 import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
+import { QUERY_KEY } from '@/constants/queryKeys';
 
 interface AffinityProgressBarProps {
   userId: string;
   botId: string;
-  messageCount?: number; // AI 응답 시 증가하는 메시지 수
+  messageCount?: number;
 }
 
 export function AffinityProgressBar({
@@ -15,7 +18,18 @@ export function AffinityProgressBar({
   botId,
   messageCount = 0,
 }: AffinityProgressBarProps) {
-  const { affinity, isLoading } = useAffinity({ userId, botId, messageCount });
+  const queryClient = useQueryClient();
+  const { data: affinity, isLoading } = useAffinityQuery({ userId, botId });
+  const prevMessageCountRef = useRef(messageCount);
+
+  useEffect(() => {
+    if (messageCount > 0 && messageCount > prevMessageCountRef.current) {
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEY.AFFINITY({ userId, botId }),
+      });
+    }
+    prevMessageCountRef.current = messageCount;
+  }, [messageCount, queryClient, userId, botId]);
 
   if (isLoading) {
     return (
