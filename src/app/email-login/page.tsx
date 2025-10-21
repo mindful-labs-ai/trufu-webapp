@@ -52,7 +52,7 @@ export default function EmailLoginPage() {
           </defs>
         </svg>
       </div>
-      
+
       {/* 로그인 컴포넌트 영역 - 절대 위치로 고정 */}
       <div className="absolute left-1/2 lg:left-[10vw] top-1/2 transform -translate-x-1/2 lg:translate-x-0 -translate-y-1/2 z-10">
         <div className="w-96">
@@ -62,36 +62,31 @@ export default function EmailLoginPage() {
           />
         </div>
       </div>
-      
+
       {/* 영상 영역 */}
       <div className="hidden lg:block absolute right-[10vw] top-1/2 transform -translate-y-1/2">
         <div className="w-[70vw] max-w-[1280px] aspect-video rounded-2xl overflow-hidden">
-          <video
-            autoPlay
-            loop
-            muted
-            className="w-full h-full object-cover"
-          >
+          <video autoPlay loop muted className="w-full h-full object-cover">
             <source src="/trufu-bg-video.mp4" type="video/mp4" />
           </video>
         </div>
       </div>
-      
+
       {/* 하단 링크 */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
         <div className="flex items-center space-x-6">
-          <a 
-            href="https://trufu.imweb.me/" 
-            target="_blank" 
+          <a
+            href="https://trufu.imweb.me/"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors text-base font-bold"
           >
             스토어
           </a>
           <span className="text-muted-foreground text-base">|</span>
-          <a 
-            href="https://www.instagram.com/d0po.mind/" 
-            target="_blank" 
+          <a
+            href="https://www.instagram.com/d0po.mind/"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors text-base font-bold"
           >

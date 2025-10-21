@@ -110,7 +110,8 @@ export const EmailPasswordLogin: React.FC<EmailPasswordLoginProps> = ({
                   <span className="text-xs text-muted-foreground">?</span>
                 </div>
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-popover border border-border text-popover-foreground text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 z-10">
-                  로그인 이메일은 전자책을 구매할 때 사용된 이메일과 동일하며 초기 비밀번호는 주문번호 입니다.
+                  로그인 이메일은 전자책을 구매할 때 사용된 이메일과 동일하며
+                  초기 비밀번호는 주문번호 입니다.
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-popover"></div>
                 </div>
               </div>

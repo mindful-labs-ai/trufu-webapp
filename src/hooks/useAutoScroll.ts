@@ -34,7 +34,11 @@ export function useAutoScroll(messageCount: number, isLoadingHistory: boolean) {
   }, []);
 
   useEffect(() => {
-    if (!isLoadingHistory && messageCount > 0 && messageCount !== prevMessageCountRef.current) {
+    if (
+      !isLoadingHistory &&
+      messageCount > 0 &&
+      messageCount !== prevMessageCountRef.current
+    ) {
       const timeoutId = setTimeout(() => {
         scrollToBottom(false);
       }, 300);
