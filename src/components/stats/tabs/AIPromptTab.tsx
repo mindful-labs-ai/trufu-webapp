@@ -10,8 +10,8 @@ export const AIPromptTab = ({
   showRawPrompt,
   onToggleRawPrompt,
 }: AIPromptTabProps) => {
-  const generatePromptNode = stats?.nodeExecutions?.find(
-    (node: any) => node.nodeId === 'generatePrompt'
+  const generatePromptNode = stats?.nodeExecutions?.find((node: any) =>
+    ['generatePrompt', 'setEbookPrompt'].includes(node.nodeId)
   );
 
   if (!generatePromptNode?.subjectData?.promptData?.messages) {
