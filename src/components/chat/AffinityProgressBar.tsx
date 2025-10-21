@@ -26,7 +26,12 @@ export function AffinityProgressBar({
   }
 
   // Don't render if affinity doesn't exist or affinity level is null
-  if (!affinity || affinity.affinity === null || affinity.affinity_progress === null) return null;
+  if (
+    !affinity ||
+    affinity.affinity === null ||
+    affinity.affinity_progress === null
+  )
+    return null;
 
   const levelInfo = AFFINITY_LEVELS[affinity.affinity!]; // null check already done above
   const progress = AffinityService.calculateProgressToNextLevel(affinity);
