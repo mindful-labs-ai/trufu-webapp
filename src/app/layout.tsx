@@ -19,7 +19,6 @@ export const metadata: Metadata = {
     icon: '/favicon.png',
     apple: '/webclip.png',
   },
-  manifest: '/manifest.json',
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
