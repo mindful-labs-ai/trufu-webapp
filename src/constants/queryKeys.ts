@@ -12,4 +12,5 @@ export const QUERY_KEY = {
     `${userId}`,
     `${botId}`,
   ],
+  UNREAD: (userId: string) => ['UNREAD_SUMMARY', userId],
 };
