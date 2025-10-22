@@ -177,8 +177,8 @@ export default function TermsPage() {
             Trufu AI 서비스 이용약관
           </h1>
           <p className="text-muted-foreground">
-            마인드풀랩스(주)가 제공하는 공감지능 AI 서비스 'Trufu AI'의
-            이용약관입니다.
+            {`마인드풀랩스(주)가 제공하는 공감지능 AI 서비스 'Trufu AI'의
+            이용약관입니다.`}
           </p>
           <div className="mt-4 text-sm text-muted-foreground">
             시행일: 2025년 10월 20일
