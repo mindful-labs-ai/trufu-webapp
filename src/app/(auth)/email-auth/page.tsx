@@ -100,9 +100,10 @@ export default function EmailLoginPage() {
         <div
           className="transition-all duration-700 ease-in-out"
           style={{
-            transform: authMode === 'login'
-              ? 'translateX(calc(90vw - 70vw))'
-              : 'translateX(10vw)'
+            transform:
+              authMode === 'login'
+                ? 'translateX(calc(90vw - 70vw))'
+                : 'translateX(10vw)',
           }}
         >
           <div className="w-[70vw] max-w-[1280px] aspect-video rounded-2xl overflow-hidden">
