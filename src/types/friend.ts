@@ -8,6 +8,7 @@ export interface Chatbot {
   locked: boolean;
   created_at: string;
   updated_at: string;
+  has_affinity: boolean;
 }
 
 export interface Friend extends Chatbot {

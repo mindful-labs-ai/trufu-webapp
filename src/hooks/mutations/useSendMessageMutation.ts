@@ -1,11 +1,16 @@
 import { QUERY_KEY } from '@/constants/queryKeys';
+import { MAX_MESSAGE_LENGTH } from '@/constants/validation';
 import { ChatService } from '@/services/chat.service';
 import { LatestChatSummary, Message } from '@/types/chat';
-import { updateChatSummary } from '@/utils/chatSummary';
-import { Friend } from '@/types/friend';
 import { useFriendStore } from '@/stores/friendStore';
 import { consumeCredit } from '@/services/token-client.service';
+import { updateLastReadAt } from '@/services/unread.service';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  updateMessagesCache,
+  updateChatSummaryCache,
+  incrementUnreadCount,
+} from '@/utils/messageCache';
 
 interface SendMessageParams {
   userId: string;
@@ -25,6 +30,12 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
       botCode,
       content,
     }: SendMessageParams) => {
+      if (content.length > MAX_MESSAGE_LENGTH) {
+        throw new Error(
+          `메시지는 최대 ${MAX_MESSAGE_LENGTH}자까지 입력할 수 있습니다.`
+        );
+      }
+
       const response = await ChatService.sendMessage(
         userId,
         botId,
@@ -34,14 +45,7 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
 
       const totalTokens = response.usage?.tokenUsage?.totalTokens;
       if (totalTokens !== undefined && totalTokens > 0) {
-        const creditResult = await consumeCredit('openai', totalTokens);
-
-        if (!creditResult.ok) {
-          console.warn(
-            'Credit consumption failed after message sent:',
-            creditResult
-          );
-        }
+        await consumeCredit('openai', totalTokens);
       }
 
       return response;
@@ -66,21 +70,13 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData<Message[]>(
-        QUERY_KEY.CHAT({ userId, botId }),
-        old => [...(old || []), userMessage]
-      );
-
-      queryClient.setQueryData<LatestChatSummary[]>(
-        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old =>
-          updateChatSummary(old || [], botId, {
-            id: userMessage.id,
-            content: userMessage.content,
-            role: 'user',
-            timestamp: new Date().toISOString(),
-          })
-      );
+      updateMessagesCache(queryClient, userId, botId, userMessage);
+      updateChatSummaryCache(queryClient, userId, botId, {
+        id: userMessage.id,
+        content: userMessage.content,
+        role: 'user',
+        timestamp: new Date().toISOString(),
+      });
 
       return { previousMessages, previousSummary };
     },
@@ -93,54 +89,29 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData<Message[]>(
-        QUERY_KEY.CHAT({ userId, botId }),
-        old => [...(old || []), assistantMessage]
-      );
-
-      queryClient.setQueryData<LatestChatSummary[]>(
-        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old =>
-          updateChatSummary(old || [], botId, {
-            id: assistantMessage.id,
-            content: assistantMessage.content,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-          })
-      );
+      updateMessagesCache(queryClient, userId, botId, assistantMessage);
+      updateChatSummaryCache(queryClient, userId, botId, {
+        id: assistantMessage.id,
+        content: assistantMessage.content,
+        role: 'assistant',
+        timestamp: new Date().toISOString(),
+      });
 
       const currentSelectedFriend = useFriendStore.getState().selectedFriend;
       const isCurrentlyViewing = currentSelectedFriend?.id === botId;
 
-      if (!isCurrentlyViewing) {
-        queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
-          old?.map(friend =>
-            friend.id === botId
-              ? {
-                  ...friend,
-                  unread_count: (friend.unread_count || 0) + 1,
-                  has_unread: true,
-                }
-              : friend
-          )
-        );
+      if (isCurrentlyViewing) {
+        updateLastReadAt(userId, botId);
+      } else {
+        incrementUnreadCount(queryClient, botId);
       }
 
       queryClient.invalidateQueries({
         queryKey: QUERY_KEY.CREDIT('openai'),
       });
-
-      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
-      // 1. 현재 보고 있는 채팅방일 경우 assistantMessage.id를 last_read_message_id로 업데이트
-      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
-      //    - Body: { last_read_message_id: assistantMessage.id }
-      // 2. 위의 클라이언트 unread 증가 로직 제거
-      // 3. 서버의 chatbots_with_unread 뷰에서 자동으로 unread 계산
     },
 
     onError: (error, { userId, botId }, context) => {
-      console.error('Failed to send message:', error);
-
       if (context?.previousMessages) {
         queryClient.setQueryData(
           QUERY_KEY.CHAT({ userId, botId }),
@@ -168,21 +139,13 @@ export function useSendMessageMutation(userId?: string, botId?: string) {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData<Message[]>(
-        QUERY_KEY.CHAT({ userId, botId }),
-        old => [...(old || []), errorMessage]
-      );
-
-      queryClient.setQueryData<LatestChatSummary[]>(
-        QUERY_KEY.LATEST_CHAT_SUMMARY(userId),
-        old =>
-          updateChatSummary(old || [], botId, {
-            id: errorMessage.id,
-            content: errorMessage.content,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-          })
-      );
+      updateMessagesCache(queryClient, userId, botId, errorMessage);
+      updateChatSummaryCache(queryClient, userId, botId, {
+        id: errorMessage.id,
+        content: errorMessage.content,
+        role: 'assistant',
+        timestamp: new Date().toISOString(),
+      });
     },
   });
 }

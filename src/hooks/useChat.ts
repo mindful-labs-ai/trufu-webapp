@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useChatHistoryQuery } from './queries/useChatHistoryQuery';
 import { useSendMessageMutation } from './mutations/useSendMessageMutation';
 import { useCreditQuery } from './queries/useCreditQuery';
+import { MAX_MESSAGE_LENGTH } from '@/constants/validation';
 
 export function useChat(
   userId: string | null,
@@ -17,7 +18,11 @@ export function useChat(
     error: historyError,
   } = useChatHistoryQuery({ userId, botId });
 
-  const { data: creditData } = useCreditQuery({
+  const {
+    data: creditData,
+    isLoading: isLoadingCredit,
+    isFetching: isFetchingCredit,
+  } = useCreditQuery({
     type: 'openai',
     enabled: !!userId,
   });
@@ -40,6 +45,18 @@ export function useChat(
         return;
       }
 
+      if (content.length > MAX_MESSAGE_LENGTH) {
+        throw new Error(
+          `메시지는 최대 ${MAX_MESSAGE_LENGTH}자까지 입력할 수 있습니다.`
+        );
+      }
+
+      if (isLoadingCredit || isFetchingCredit) {
+        throw new Error(
+          '크레딧 정보를 확인하는 중입니다. 잠시만 기다려주세요.'
+        );
+      }
+
       if (creditData && creditData.credit <= 0) {
         throw new Error(
           '크레딧이 모두 소진되었습니다. 크레딧을 충전한 후 다시 시도해주세요.'
@@ -53,7 +70,15 @@ export function useChat(
         content: content.trim(),
       });
     },
-    [userId, botId, botCode, sendMessageAsync, creditData]
+    [
+      userId,
+      botId,
+      botCode,
+      sendMessageAsync,
+      creditData,
+      isLoadingCredit,
+      isFetchingCredit,
+    ]
   );
 
   return {
@@ -65,5 +90,6 @@ export function useChat(
     isReady: Boolean(userId && botId),
     hasCredit: creditData ? creditData.credit > 0 : true,
     creditAmount: creditData?.credit ?? null,
+    isLoadingCredit: isLoadingCredit || isFetchingCredit,
   };
 }

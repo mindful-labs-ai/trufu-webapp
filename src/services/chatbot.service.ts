@@ -22,6 +22,7 @@ export async function getAllChatbots(): Promise<Chatbot[]> {
       agent_code: item.agent_code || '',
       order: item.order || null,
       locked: item.locked || false,
+      has_affinity: item.has_affinity || false,
       created_at: item.created_at,
       updated_at: item.updated_at,
       unread_count: undefined,

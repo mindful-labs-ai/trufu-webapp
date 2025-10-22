@@ -5,17 +5,20 @@ import { CurrentUser } from '@/stores/userStore';
 import { parseSimpleMarkdown, sanitizeHtml } from '@/utils/markdown';
 import { useState } from 'react';
 import { WorkflowStatsModal } from './WorkflowStatsModal';
+import { CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 
 interface ChatMessageProps {
   message: Message;
   currentUser?: CurrentUser;
   friendName?: string;
+  friendId?: string;
 }
 
 export const ChatMessage = ({
   message,
   currentUser,
   friendName,
+  friendId,
 }: ChatMessageProps) => {
   const isUser = message.role === 'user';
   const isAdmin = currentUser?.isAdmin || false;
@@ -30,10 +33,12 @@ export const ChatMessage = ({
     setShowStatsModal(null);
   };
 
+  const profileImage = CHAT_BOT_PROFILE(Number(friendId));
+
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`flex max-w-[90%] ${
+        className={`flex max-w-[90%] sm:max-w-[90%] md:max-w-[70%] ${
           isUser ? 'flex-row-reverse' : 'flex-row'
         } space-x-2`}
       >
@@ -43,7 +48,15 @@ export const ChatMessage = ({
               className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
             >
               <span className="text-primary-foreground text-sm font-medium">
-                {friendName?.charAt(0).toUpperCase() || 'B'}
+                {profileImage ? (
+                  <img
+                    className="rounded-full object-cover"
+                    src={profileImage.src}
+                    alt={profileImage.alt}
+                  />
+                ) : (
+                  friendName?.charAt(0).toUpperCase() || 'B'
+                )}
               </span>
             </div>
           </div>
@@ -85,7 +98,7 @@ export const ChatMessage = ({
             )}
 
             <div
-              className={`text-sm leading-relaxed break-keep text-left ${
+              className={`text-sm leading-relaxed text-pretty break-all text-left ${
                 isUser || 'pr-5'
               } [&>p]:mb-2 [&>p:last-child]:mb-0 [&>h1]:text-lg [&>h1]:font-bold [&>h2]:text-base [&>h2]:font-semibold [&>h3]:text-sm [&>h3]:font-medium [&>code]:text-xs [&>pre]:text-xs`}
               dangerouslySetInnerHTML={{

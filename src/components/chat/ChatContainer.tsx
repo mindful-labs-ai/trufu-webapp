@@ -1,9 +1,10 @@
 'use client';
 
 import { useChat } from '@/hooks/useChat';
+import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { useFriendStore } from '@/stores/friendStore';
 import { CurrentUser } from '@/stores/userStore';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { ChatContainerHeader } from './ChatContainerHeader';
 import { ChatInput } from './ChatInput';
 import { ChatMessage } from './ChatMessage';
@@ -11,15 +12,20 @@ import { DateSeparator } from './DateSeparator';
 import { useQueryClient } from '@tanstack/react-query';
 import { QUERY_KEY } from '@/constants/queryKeys';
 import { Friend } from '@/types/friend';
-import { CHAT_BOT_IMAGE } from '@/constants/chatBotImage';
+import { CHAT_BOT_IMAGE, CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
+import { CHAT_BOT } from '@/constants/chatBotIdMapping';
+import { resetUnreadCount } from '@/utils/messageCache';
+import { updateLastReadAt } from '@/services/unread.service';
 
 interface ChatContainerProps {
   user: CurrentUser;
 }
 
 export const ChatContainer = ({ user }: ChatContainerProps) => {
-  const { selectedFriend } = useFriendStore();
+  const { selectedFriend, selectFriend } = useFriendStore();
   const queryClient = useQueryClient();
+
+  const allFriends = queryClient.getQueryData<Friend[]>(QUERY_KEY.FRIENDS());
 
   const {
     messages,
@@ -29,119 +35,101 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     sendMessage,
     isReady,
     hasCredit,
-    creditAmount,
+    isLoadingCredit,
   } = useChat(
     user.id.toString(),
     selectedFriend?.id || null,
     selectedFriend?.agent_code || null
   );
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
-
-  // 채팅방 선택 시 현재 보고 있는 채팅방의 unread를 0으로 표시 (클라이언트 상태)
-  useEffect(() => {
-    if (selectedFriend?.id) {
-      queryClient.setQueryData<Friend[]>(QUERY_KEY.FRIENDS(), old =>
-        old?.map(friend =>
-          friend.id === selectedFriend.id
-            ? { ...friend, unread_count: 0, has_unread: false }
-            : friend
-        )
-      );
-
-      // TODO: [DB 뷰 준비 후] 서버에 last_read_message_id 업데이트
-      // 1. 현재 채팅방의 마지막 메시지 ID를 서버에 전송
-      //    - API: PATCH /api/users/{userId}/chatrooms/{botId}/read
-      //    - Body: { last_read_message_id: messages[messages.length - 1]?.id }
-      // 2. 위의 클라이언트 unread 리셋 로직 제거
-      // 3. 친구 목록 refetch하여 서버의 최신 unread 상태 반영
-      //    - queryClient.invalidateQueries({ queryKey: QUERY_KEY.FRIENDS() })
-    }
-  }, [selectedFriend?.id, queryClient]);
-
-  const bottomImage = CHAT_BOT_IMAGE(selectedFriend?.id as number | undefined);
-
-  const scrollToBottom = (force = false) => {
-    if (shouldAutoScroll || force) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScroll = () => {
-    const container = chatContainerRef.current;
-    if (container) {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const isAtBottom = scrollHeight - scrollTop - clientHeight < 50; // 50px 여유
-
-      setShouldAutoScroll(isAtBottom);
-
-      if (!isAtBottom) {
-        setIsUserScrolling(true);
-      } else {
-        setIsUserScrolling(false);
-      }
-    }
-  };
+  const {
+    messagesEndRef,
+    chatContainerRef,
+    isUserScrolling,
+    shouldAutoScroll,
+    scrollToBottom,
+    setShouldAutoScroll,
+    handleScroll,
+  } = useAutoScroll(messages.length, isLoadingHistory);
 
   useEffect(() => {
-    if (!isLoadingHistory) {
-      const timeoutId = setTimeout(() => {
-        scrollToBottom();
-      }, 100);
+    if (selectedFriend?.id && user.id) {
+      const hasUnread = allFriends
+        ?.filter(friend => friend.has_unread)
+        .includes(selectedFriend);
 
-      return () => clearTimeout(timeoutId);
+      resetUnreadCount(queryClient, selectedFriend.id);
+      if (hasUnread) updateLastReadAt(user.id.toString(), selectedFriend.id);
     }
-  }, [messages, isLoading, isLoadingHistory]);
+  }, [selectedFriend?.id, user.id, queryClient]);
 
-  useEffect(() => {
-    if (!isLoadingHistory && messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [isLoadingHistory]);
+  const friendId = selectedFriend?.id ? Number(selectedFriend.id) : undefined;
+  const bottomImage = CHAT_BOT_IMAGE(friendId);
+  const profileImage = CHAT_BOT_PROFILE(friendId);
 
   const handleSendMessage = async (message: string) => {
-    try {
-      setShouldAutoScroll(true);
-      await sendMessage(message);
+    setShouldAutoScroll(true);
+    await sendMessage(message);
 
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    }
+    setTimeout(() => {
+      scrollToBottom();
+    }, 300);
   };
 
   useEffect(() => {
-    const container = chatContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      setShouldAutoScroll(true);
-    }
-  }, [selectedFriend]);
+    setShouldAutoScroll(true);
+    setTimeout(() => {
+      scrollToBottom(true);
+    }, 300);
+  }, [selectedFriend?.id, setShouldAutoScroll, scrollToBottom]);
 
   if (!selectedFriend) {
+    const featuredChatbotIds = [CHAT_BOT.DOPO, CHAT_BOT.Ebook] as unknown[];
+
+    const featuredFriends = allFriends?.filter(friend =>
+      featuredChatbotIds.includes(friend.id)
+    );
+
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="text-center max-w-3xl w-full">
           <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
             💬
           </div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
             대화 시작하기
           </h2>
-          <p className="text-muted-foreground max-w-md">
-            왼쪽에서 대화할 친구를 선택해주세요!
+          <p className="text-muted-foreground mb-8">
+            대화할 친구를 선택해주세요!
           </p>
+
+          {featuredFriends && featuredFriends.length > 0 && (
+            <div className="flex gap-4 px-4 items-center">
+              {featuredFriends.map(friend => (
+                <button
+                  key={friend.id}
+                  onClick={() => selectFriend(friend)}
+                  className="relative flex flex-1 flex-col gap-2 items-center p-4 rounded-lg border border-border active:bg-muted transition-all group"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                    <span className="text-2xl text-primary-foreground">
+                      {friend.name?.charAt(0).toUpperCase() || '💬'}
+                    </span>
+                  </div>
+                  <span className="text-md font-medium text-foreground group-hover:scale-110 transition-transform">
+                    {friend.name}
+                  </span>
+                  {friend.has_unread && (
+                    <div className="absolute top-3 translate-x-6">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-primary-foreground">
+                        {friend.unread_count || 0}
+                      </span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -149,7 +137,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
   return (
     <div className="flex-1 flex flex-col h-full relative">
-      {selectedFriend && messages.length > 0 && (
+      {selectedFriend.has_affinity && messages.length > 0 && (
         <div className="border-b border-border p-3 bg-card">
           <ChatContainerHeader
             user={user}
@@ -161,9 +149,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
       <div
         ref={chatContainerRef}
-        className={`flex-1 overflow-y-auto p-4 ${
-          bottomImage && 'pb-48'
-        } space-y-4`}
+        className="flex-1 overflow-y-auto p-4 pb-0 space-y-4"
         onScroll={handleScroll}
       >
         {historyError && (
@@ -199,7 +185,15 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 text-primary-foreground bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                {selectedFriend?.name?.charAt(0) || '💬'}
+                {profileImage ? (
+                  <img
+                    className="rounded-full object-cover"
+                    src={profileImage.src}
+                    alt={profileImage.alt}
+                  />
+                ) : (
+                  selectedFriend?.name?.charAt(0)
+                )}
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-2">
                 {selectedFriend
@@ -214,7 +208,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             </div>
           </div>
         ) : (
-          <div className="max-w-[720px] mx-auto space-y-4">
+          <div className="flex flex-col flex-1 max-w-[720px] mx-auto gap-y-4">
             {messages.map((message, index) => {
               const showDateSeparator =
                 index === 0 ||
@@ -231,24 +225,35 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                     message={message}
                     currentUser={user}
                     friendName={selectedFriend?.name}
+                    friendId={selectedFriend?.id}
                   />
                 </div>
               );
             })}
             {isLoading && (
               <div className="flex flex-row space-x-2 justify-start">
-                <div
-                  className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
-                >
-                  <span className="text-primary-foreground text-sm font-medium">
-                    {selectedFriend?.name?.charAt(0).toUpperCase() || 'B'}
-                  </span>
+                <div className="flex-shrink-0 pl-2 mr-2">
+                  <div
+                    className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
+                  >
+                    <span className="text-primary-foreground text-sm font-medium">
+                      {profileImage ? (
+                        <img
+                          className="rounded-full object-cover"
+                          src={profileImage.src}
+                          alt={profileImage.alt}
+                        />
+                      ) : (
+                        selectedFriend?.name?.charAt(0)
+                      )}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-500 mb-1">
                     {selectedFriend?.name}
                   </span>
-                  <div className="bg-muted rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
+                  <div className="bg-message-bg rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-foreground rounded-full animate-bounce"></div>
                       <div
@@ -264,23 +269,23 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
+            <div className={`${bottomImage && 'pb-40'}`} />
+            <div ref={messagesEndRef} style={{ height: '16px' }} />
           </div>
         )}
         {!isLoadingHistory && messages.length === 0 && (
           <div ref={messagesEndRef} />
         )}
+      </div>
 
-        {/* dopo.gif 고정 이미지 - 스크롤 영역 하단 고정 */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-0">
-          {bottomImage && (
-            <img
-              src={bottomImage.src}
-              alt={bottomImage.alt}
-              className="w-72 h-72 object-cover"
-            />
-          )}
-        </div>
+      <div className="absolute bottom-4 w-72 h-72 left-1/2 -translate-x-1/2 pointer-events-none z-0">
+        {bottomImage && (
+          <img
+            src={bottomImage.src}
+            alt={bottomImage.alt}
+            className="w-full h-full scale-75 md:scale-100 object-contain"
+          />
+        )}
       </div>
 
       <div className="relative">
@@ -318,12 +323,15 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             isLoadingHistory ||
             !selectedFriend ||
             !isReady ||
-            !hasCredit
+            !hasCredit ||
+            isLoadingCredit
           }
           placeholder={
-            !hasCredit
-              ? '크레딧이 모두 소진되었습니다. 크레딧을 충전해주세요.'
-              : undefined
+            isLoadingCredit
+              ? '크레딧 정보를 확인하는 중...'
+              : !hasCredit
+                ? '크레딧이 모두 소진되었습니다.'
+                : undefined
           }
         />
       </div>

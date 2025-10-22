@@ -45,6 +45,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const handleLogout = async () => {
     try {
       await logout();
+      router.replace('/email-login');
     } catch (error) {
       console.error('Failed to logout', error);
     } finally {
@@ -101,7 +102,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   {me?.email || '사용자'}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {me?.isAdmin ? '관리자' : '일반 사용자'}
+                  {me?.isAdmin ? '관리자' : ''}
                 </p>
                 {/* 크레딧 표시 */}
                 <div className="mt-2 pt-2 border-t border-border/30">
