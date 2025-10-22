@@ -45,7 +45,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const handleLogout = async () => {
     try {
       await logout();
-      router.replace('/email-login');
+      router.replace('/email-auth');
     } catch (error) {
       console.error('Failed to logout', error);
     } finally {
