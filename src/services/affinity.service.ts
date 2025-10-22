@@ -8,13 +8,27 @@ export class AffinityService {
     botId: string
   ): Promise<Affinity | null> {
     try {
+      const { data: chatbotData, error: chatbotError } = await supabase
+        .from('chatbots')
+        .select('has_affinity')
+        .eq('id', botId)
+        .single();
+
+      if (chatbotError) {
+        console.error('Failed to fetch chatbot data:', chatbotError);
+        return null;
+      }
+
+      const affinityValue = chatbotData.has_affinity ? 1 : null;
+      const affinityProgress = chatbotData.has_affinity ? 0.0 : null;
+
       const { data: newData, error: insertError } = await supabase
         .from('conversations')
         .insert({
           user_id: userId,
           bot_id: botId,
-          affinity: 1,
-          affinity_progress: 0.0,
+          affinity: affinityValue,
+          affinity_progress: affinityProgress,
         })
         .select()
         .single();
@@ -52,6 +66,7 @@ export class AffinityService {
         return null;
       }
 
+      // Create new affinity record based on chatbot's has_affinity setting
       return await this.createNewAffinity(userId, botId);
     } catch (error) {
       console.error('Error getting affinity:', error);
@@ -68,6 +83,16 @@ export class AffinityService {
     progressPercent: number;
     isMaxLevel: boolean;
   } {
+    // Handle null affinity values
+    if (affinity.affinity === null || affinity.affinity_progress === null) {
+      return {
+        currentLevel: 0,
+        nextLevel: null,
+        progressPercent: 0,
+        isMaxLevel: false,
+      };
+    }
+
     const currentLevel = affinity.affinity;
     const currentProgress = affinity.affinity_progress;
     const isMaxLevel = currentLevel >= 4;
@@ -83,7 +108,14 @@ export class AffinityService {
   /**
    * 친밀도 레벨 별 예상 증가율 범위 반환
    */
-  static getAffinityIncreaseRange(level: number): { min: number; max: number } {
+  static getAffinityIncreaseRange(level: number | null): {
+    min: number;
+    max: number;
+  } {
+    if (level === null) {
+      return { min: 0, max: 0 };
+    }
+
     switch (level) {
       case 1:
         return { min: 15, max: 20 };

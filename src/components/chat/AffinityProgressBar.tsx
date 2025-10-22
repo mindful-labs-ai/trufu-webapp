@@ -7,7 +7,7 @@ import { Affinity, AFFINITY_LEVELS, AffinityLevelInfo } from '@/types/affinity';
 interface AffinityProgressBarProps {
   userId: string;
   botId: string;
-  messageCount?: number; // AI 응답 시 증가하는 메시지 수
+  messageCount?: number;
 }
 
 export function AffinityProgressBar({
@@ -25,9 +25,15 @@ export function AffinityProgressBar({
     );
   }
 
-  if (!affinity) return null;
+  // Don't render if affinity doesn't exist or affinity level is null
+  if (
+    !affinity ||
+    affinity.affinity === null ||
+    affinity.affinity_progress === null
+  )
+    return null;
 
-  const levelInfo = AFFINITY_LEVELS[affinity.affinity];
+  const levelInfo = AFFINITY_LEVELS[affinity.affinity!]; // null check already done above
   const progress = AffinityService.calculateProgressToNextLevel(affinity);
 
   return (
