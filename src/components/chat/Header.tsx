@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/userStore';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreditQuery } from '@/hooks/queries/useCreditQuery';
+import { CouponModal } from '@/components/coupon/CouponModal';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -18,6 +19,8 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const isUserLoading = useUserStore(s => s.isLoading);
   const { theme, toggleTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [hasManuallyClosedModal, setHasManuallyClosedModal] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -58,109 +61,148 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
     setIsProfileOpen(false);
   };
 
+  const handleOpenCouponModal = () => {
+    setIsCouponModalOpen(true);
+    setHasManuallyClosedModal(false);
+    setIsProfileOpen(false);
+  };
+
+  const handleCloseCouponModal = () => {
+    setIsCouponModalOpen(false);
+    setHasManuallyClosedModal(true);
+  };
+
+  useEffect(() => {
+    if (
+      creditData &&
+      creditData.credit === 0 &&
+      !isCouponModalOpen &&
+      !hasManuallyClosedModal
+    ) {
+      setIsCouponModalOpen(true);
+    }
+
+    if (creditData && creditData.credit > 0 && hasManuallyClosedModal) {
+      setHasManuallyClosedModal(false);
+    }
+  }, [creditData, isCouponModalOpen, hasManuallyClosedModal]);
+
   return (
-    <header className="bg-card border-b border-border p-4 h-16 flex items-center justify-between">
-      <div className="flex items-center">
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-md hover:bg-muted transition-colors"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-        <h1 className="ml-2 text-xl font-semibold text-foreground">
-          {selectedFriend ? `${selectedFriend.name}` : 'Trufu'}
-        </h1>
-      </div>
-
-      <div className="flex items-center space-x-4">
-        <div className="relative" ref={profileRef}>
+    <>
+      <CouponModal
+        isOpen={isCouponModalOpen}
+        onClose={handleCloseCouponModal}
+        isZeroCredit={creditData?.credit === 0}
+      />
+      <header className="bg-card border-b border-border p-4 h-16 flex items-center justify-between">
+        <div className="flex items-center">
           <button
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary"
+            onClick={onMenuClick}
+            className="lg:hidden p-2 rounded-md hover:bg-muted transition-colors"
           >
-            <span className="text-primary-foreground text-sm font-medium">
-              {me?.email?.charAt(0).toUpperCase() || 'U'}
-            </span>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
           </button>
+          <h1 className="ml-2 text-xl font-semibold text-foreground">
+            {selectedFriend ? `${selectedFriend.name}` : 'Trufu'}
+          </h1>
+        </div>
 
-          {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-card rounded-lg shadow-lg border border-border py-2 z-50">
-              <div className="px-4 py-3 border-b border-border/50">
-                <p className="text-sm font-medium text-foreground">
-                  {me?.email || '사용자'}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {me?.isAdmin ? '관리자' : ''}
-                </p>
-                {/* 크레딧 표시 */}
-                <div className="mt-2 pt-2 border-t border-border/30">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      크레딧
-                    </span>
-                    {isCreditLoading ? (
+        <div className="flex items-center space-x-4">
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <span className="text-primary-foreground text-sm font-medium">
+                {me?.email?.charAt(0).toUpperCase() || 'U'}
+              </span>
+            </button>
+
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-card rounded-lg shadow-lg border border-border py-2 z-50">
+                <div className="px-4 py-3 border-b border-border/50">
+                  <p className="text-sm font-medium text-foreground">
+                    {me?.email || '사용자'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {me?.isAdmin ? '관리자' : ''}
+                  </p>
+                  {/* 크레딧 표시 */}
+                  <div className="mt-2 pt-2 border-t border-border/30">
+                    <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        로딩 중...
+                        크레딧
                       </span>
-                    ) : (
-                      <span className="text-sm font-semibold text-foreground">
-                        {creditData?.credit?.toLocaleString() ?? 0}
-                      </span>
+                      {isCreditLoading ? (
+                        <span className="text-xs text-muted-foreground">
+                          로딩 중...
+                        </span>
+                      ) : (
+                        <span className="text-sm font-semibold text-foreground">
+                          {creditData?.credit?.toLocaleString() ?? 0}
+                        </span>
+                      )}
+                    </div>
+                    {creditData && !creditData.allowed && (
+                      <p className="text-xs text-red-500 mt-1">
+                        크레딧이 부족합니다
+                      </p>
                     )}
                   </div>
-                  {creditData && !creditData.allowed && (
-                    <p className="text-xs text-red-500 mt-1">
-                      크레딧이 부족합니다
-                    </p>
-                  )}
                 </div>
-              </div>
-              <button
-                onClick={handleProfileSettings}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
-              >
-                비밀번호 변경
-              </button>
-              <button
-                onClick={toggleTheme}
-                className="w-full flex items-center justify-between px-4 py-2 text-sm text-foreground hover:bg-muted"
-              >
-                <span>다크 모드</span>
-                <div
-                  className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
-                    theme === 'dark' ? 'bg-primary' : 'bg-muted-bg'
-                  }`}
+                <button
+                  onClick={handleProfileSettings}
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
                 >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
-                      theme === 'dark' ? 'translate-x-5' : 'translate-x-1'
-                    } bg-primary-foreground`}
-                  />
-                </div>
-              </button>
-              <button
-                onClick={handleLogout}
-                disabled={isUserLoading}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                로그아웃
-              </button>
-            </div>
-          )}
+                  비밀번호 변경
+                </button>
+                <button
+                  onClick={handleOpenCouponModal}
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
+                >
+                  크레딧 충전
+                </button>
+                <button
+                  onClick={toggleTheme}
+                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-foreground hover:bg-muted"
+                >
+                  <span>다크 모드</span>
+                  <div
+                    className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
+                      theme === 'dark' ? 'bg-primary' : 'bg-muted-bg'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
+                        theme === 'dark' ? 'translate-x-5' : 'translate-x-1'
+                      } bg-primary-foreground`}
+                    />
+                  </div>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  disabled={isUserLoading}
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 };
