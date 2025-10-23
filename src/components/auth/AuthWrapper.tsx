@@ -1,7 +1,11 @@
 'use client';
 
 import { useUserStore } from '@/stores/userStore';
-import { isPublicPath, redirectToLogin, getRedirectPath } from '@/utils/auth-redirect';
+import {
+  isPublicPath,
+  redirectToLogin,
+  getRedirectPath,
+} from '@/utils/auth-redirect';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { useAuthStateSync } from '@/hooks/useAuthStateSync';
