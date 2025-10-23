@@ -16,7 +16,6 @@ import { CHAT_BOT_IMAGE, CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 import { CHAT_BOT } from '@/constants/chatBotIdMapping';
 import { resetUnreadCount } from '@/utils/messageCache';
 import { updateLastReadAt } from '@/services/unread.service';
-import { Affinity } from '@/types/affinity';
 import { UnreadSummary } from '@/types/unread';
 
 interface ChatContainerProps {
@@ -149,23 +148,17 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     );
   }
 
-  const firstMeet = queryClient.getQueryData<Affinity>(
-    QUERY_KEY.AFFINITY({ userId: user.id, botId: selectedFriend.id })
-  );
-
   return (
     <div className="flex-1 flex flex-col h-full relative">
-      {selectedFriend.has_affinity &&
-        messages.length > 0 &&
-        !!firstMeet?.affinity && (
-          <div className="border-b border-border p-3 bg-card">
-            <ChatContainerHeader
-              user={user}
-              chatbot={selectedFriend}
-              messageCount={messages.length}
-            />
-          </div>
-        )}
+      {selectedFriend.has_affinity && messages.length > 0 && (
+        <div className="border-b border-border p-3 bg-card">
+          <ChatContainerHeader
+            user={user}
+            chatbot={selectedFriend}
+            messageCount={messages.length}
+          />
+        </div>
+      )}
 
       <div
         ref={chatContainerRef}
@@ -350,8 +343,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             isLoadingCredit
               ? '크레딧 정보를 확인하는 중...'
               : !hasCredit
-                ? '크레딧이 모두 소진되었습니다.'
-                : undefined
+              ? '크레딧이 모두 소진되었습니다.'
+              : undefined
           }
         />
       </div>
