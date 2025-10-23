@@ -4,76 +4,48 @@ import { redeemCoupon } from '@/services/coupon.service';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { QUERY_KEY } from '@/constants/queryKeys';
+import { useToast } from '@/contexts/ToastContext';
+import { parseCouponError } from '@/utils/coupon-error';
 
 interface CouponModalProps {
   isOpen: boolean;
   onClose: () => void;
-  isZeroCredit?: boolean;
 }
 
-type MessageState = {
-  type: 'success' | 'error';
-  text: string;
-} | null;
-
-const AUTO_CLOSE_DELAY = 2000;
+const AUTO_CLOSE_DELAY = 1000;
 const CREDIT_TYPE = 'openai';
-
-const ERROR_MESSAGES: Record<string, string> = {
-  invalid_code: '유효하지 않은 쿠폰 코드입니다.',
-  already_redeemed: '이미 사용한 쿠폰입니다.',
-  missing_code: '쿠폰 코드를 입력해주세요.',
-};
-
-function parseCouponError(error: Error): string {
-  const message = error.message.toLowerCase();
-
-  for (const [key, errorMessage] of Object.entries(ERROR_MESSAGES)) {
-    if (message.includes(key)) {
-      return errorMessage;
-    }
-  }
-
-  return error.message || '쿠폰 사용 중 오류가 발생했습니다.';
-}
 
 export const CouponModal = ({
   isOpen,
   onClose,
-  isZeroCredit = false,
 }: CouponModalProps) => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<MessageState>(null);
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const resetForm = () => {
     setCode('');
-    setMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!code.trim()) {
-      setMessage({
-        type: 'error',
-        text: '쿠폰 코드를 입력해주세요.',
-      });
+      showToast('쿠폰 코드를 입력해주세요.', 'error');
       return;
     }
 
     setLoading(true);
-    setMessage(null);
 
     try {
       const result = await redeemCoupon(code);
 
       if (result.redeemed) {
-        setMessage({
-          type: 'success',
-          text: `성공! ${result.credit_added?.toLocaleString()} 크레딧이 추가되었습니다. (잔액: ${result.credit_after?.toLocaleString()})`,
-        });
+        showToast(
+          `${result.credit_added?.toLocaleString()} 크레딧이 추가되었습니다. (잔액: ${result.credit_after?.toLocaleString()})`,
+          'success'
+        );
         setCode('');
 
         queryClient.invalidateQueries({
@@ -82,14 +54,10 @@ export const CouponModal = ({
 
         setTimeout(() => {
           onClose();
-          setMessage(null);
         }, AUTO_CLOSE_DELAY);
       }
     } catch (error) {
-      setMessage({
-        type: 'error',
-        text: parseCouponError(error as Error),
-      });
+      showToast(parseCouponError(error as Error), 'error');
     } finally {
       setLoading(false);
     }
@@ -150,18 +118,6 @@ export const CouponModal = ({
               autoFocus
             />
           </div>
-
-          {message && (
-            <div
-              className={`mb-4 p-3 rounded-lg ${
-                message.type === 'success'
-                  ? 'bg-green-500/10 border border-green-500 text-green-500'
-                  : 'bg-red-500/10 border border-red-500 text-red-500'
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
 
           <div className="flex gap-3">
             <button
