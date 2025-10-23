@@ -15,10 +15,7 @@ interface CouponModalProps {
 const AUTO_CLOSE_DELAY = 1000;
 const CREDIT_TYPE = 'openai';
 
-export const CouponModal = ({
-  isOpen,
-  onClose,
-}: CouponModalProps) => {
+export const CouponModal = ({ isOpen, onClose }: CouponModalProps) => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
