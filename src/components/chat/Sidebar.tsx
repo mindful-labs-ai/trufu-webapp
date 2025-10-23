@@ -128,8 +128,8 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     selectedFriend?.id === friend.id
                       ? 'bg-muted'
                       : friend.locked
-                      ? ''
-                      : 'hover:bg-muted'
+                        ? ''
+                        : 'hover:bg-muted'
                   }
                 `}
                   >

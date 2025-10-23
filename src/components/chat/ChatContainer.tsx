@@ -318,8 +318,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             isLoadingCredit
               ? '크레딧 정보를 확인하는 중...'
               : !hasCredit
-              ? '크레딧이 모두 소진되었습니다.'
-              : undefined
+                ? '크레딧이 모두 소진되었습니다.'
+                : undefined
           }
         />
       </div>
