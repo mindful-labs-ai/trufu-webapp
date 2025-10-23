@@ -6,6 +6,8 @@ import { useUserStore } from '@/stores/userStore';
 import React, { useState } from 'react';
 import { parseAuthError } from '@/utils/auth-error';
 import { validateEmailPassword, validateSignUp } from '@/utils/auth-validation';
+import { useRouter } from 'next/navigation';
+import { getRedirectPath } from '@/utils/auth-redirect';
 
 type AuthMode = 'login' | 'signup';
 
@@ -25,6 +27,7 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
   onModeChange,
 }) => {
   const initializeUser = useUserStore(s => s.initialize);
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -101,6 +104,10 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
     }
 
     await initializeUser();
+
+    const redirectPath = getRedirectPath();
+    router.replace(redirectPath);
+
     onLoginSuccess?.();
     setError(null);
   };
@@ -228,8 +235,8 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
                   ? '가입 중...'
                   : '로그인 중...'
                 : isSignUp
-                  ? '회원가입'
-                  : '로그인'}
+                ? '회원가입'
+                : '로그인'}
             </button>
 
             <div className="relative">

@@ -36,7 +36,6 @@ export default function EmailLoginPage() {
   };
 
   const handleSignUpSuccess = () => {
-    // 회원가입 성공 시 로그인 모드로 전환하고 안내 메시지 표시
     setAuthMode('login');
     alert('회원가입이 완료되었습니다. 이메일을 확인하여 인증을 완료해주세요.');
   };

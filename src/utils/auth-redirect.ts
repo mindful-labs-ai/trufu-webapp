@@ -37,5 +37,5 @@ export function getRedirectPath(): string {
 
 export function redirectAfterAuth(router: ReturnType<typeof useRouter>) {
   const redirectPath = getRedirectPath();
-  router.push(redirectPath);
+  router.replace(redirectPath);
 }
