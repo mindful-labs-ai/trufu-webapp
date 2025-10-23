@@ -96,11 +96,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
 
   return (
     <>
-      <CouponModal
-        isOpen={couponModal.isOpen}
-        onClose={couponModal.close}
-        isZeroCredit={couponModal.isZeroCredit}
-      />
+      <CouponModal isOpen={couponModal.isOpen} onClose={couponModal.close} />
       <header className="bg-card border-b border-border p-4 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <button
