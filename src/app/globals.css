@@ -2,28 +2,28 @@
 
 :root {
   /* Light theme base (readable, Tailwind-like) */
-  --bg-base: #f9fafb; /* gray-50 */
-  --fg-base: #111827; /* gray-900 */
+  --bg-base: #f9fafb;
+  --fg-base: #111827;
 
-  --primary-base: #4325eb; /* blue-600 */
-  --secondary-base: #8b5cf6; /* violet-500 */
-  --accent-base: #4325eb; /* cyan-500 */
-  --tertiary-base: #eb257e; /* emerald-500 (emphasis for selection/toggles) */
+  --primary-base: #4325eb;
+  --secondary-base: #8b5cf6;
+  --accent-base: #4325eb;
+  --tertiary-base: #f693c0;
 
-  --card-base: #ffffff; /* white */
+  --card-base: #ffffff;
   --card-fg-base: #111827;
   --popover-base: #ffffff;
   --popover-fg-base: #111827;
 
-  --muted-base: #edeff1; /* gray-100 */
+  --muted-base: #edeff1;
   --muted-bg-base: #dbdde0;
-  --muted-fg-base: #6b7280; /* gray-500 */
+  --muted-fg-base: #6b7280;
 
-  --destructive-base: #dc2626; /* red-600 */
+  --destructive-base: #dc2626;
 
-  --border-base: #e5e7eb; /* gray-200 */
-  --input-base: #d1d5db; /* gray-300 */
-  --ring-base: #3b82f6; /* blue-500 */
+  --border-base: #e5e7eb;
+  --input-base: #d1d5db;
+  --ring-base: #3b82f6;
 
   --sidebar-base: #ffffff;
   --sidebar-fg-base: #111827;
@@ -37,24 +37,24 @@
 
 .dark {
   /* Dark theme base (balanced contrast) */
-  --bg-base: #1d212c; /* slate-900 */
-  --fg-base: #e5e7eb; /* gray-200 */
+  --bg-base: #1d212c;
+  --fg-base: #e5e7eb;
 
-  --primary-base: #6a52f0; /* blue-400 */
-  --secondary-base: #8b5cf6; /* violet-400 */
-  --accent-base: #4325eb; /* cyan-400 */
-  --tertiary-base: #cd465f; /* emerald-400 */
+  --primary-base: #6a52f0;
+  --secondary-base: #8b5cf6;
+  --accent-base: #4325eb;
+  --tertiary-base: #ba7494;
 
-  --card-base: #1d212c; /* gray-900 */
+  --card-base: #1d212c;
   --card-fg-base: #e5e7eb;
   --popover-base: #111827;
   --popover-fg-base: #e5e7eb;
 
-  --muted-base: #30363e; /* gray-800 */
+  --muted-base: #30363e;
   --muted-bg-base: #394251;
-  --muted-fg-base: #9ca3af; /* gray-400 */
+  --muted-fg-base: #9ca3af;
 
-  --destructive-base: #ef4444; /* red-500 */
+  --destructive-base: #ef4444;
 
   --border-base: color-mix(in oklab, white 12%, transparent);
   --input-base: color-mix(in oklab, white 18%, transparent);
