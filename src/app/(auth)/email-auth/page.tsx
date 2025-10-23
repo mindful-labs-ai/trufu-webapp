@@ -1,24 +1,15 @@
 'use client';
 
 import { EmailAuth } from '@/components/auth/EmailAuth';
-import { useUserStore } from '@/stores/userStore';
-import { redirectAfterAuth } from '@/utils/auth-redirect';
-import { useRouter } from 'next/navigation';
+import { useToast } from '@/contexts/ToastContext';
 import { useEffect, useState } from 'react';
 
 type AuthMode = 'login' | 'signup';
 
 export default function EmailLoginPage() {
-  const router = useRouter();
-  const currentUser = useUserStore(s => s.me);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [isLargeScreen, setIsLargeScreen] = useState(false);
-
-  useEffect(() => {
-    if (currentUser) {
-      redirectAfterAuth(router);
-    }
-  }, [currentUser, router]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -30,14 +21,12 @@ export default function EmailLoginPage() {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  const handleLoginSuccess = () => {
-    redirectAfterAuth(router);
-    window.location.reload();
-  };
-
   const handleSignUpSuccess = () => {
     setAuthMode('login');
-    alert('회원가입이 완료되었습니다. 이메일을 확인하여 인증을 완료해주세요.');
+    showToast(
+      '회원가입이 완료되었습니다. 이메일을 확인하여 인증을 완료해주세요.',
+      'success'
+    );
   };
 
   const handleError = (error: string) => {
@@ -86,7 +75,6 @@ export default function EmailLoginPage() {
         >
           <EmailAuth
             mode={authMode}
-            onLoginSuccess={handleLoginSuccess}
             onSignUpSuccess={handleSignUpSuccess}
             onError={handleError}
             onModeChange={setAuthMode}

@@ -37,7 +37,8 @@ export const useUserStore = create<UserStore>()(
       error: undefined,
 
       initialize: async () => {
-        if (get().isInitialized) {
+        const skipInitCheck = get().isInitialized && get().me !== null;
+        if (skipInitCheck) {
           return;
         }
 

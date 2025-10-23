@@ -6,8 +6,6 @@ import { useUserStore } from '@/stores/userStore';
 import React, { useState } from 'react';
 import { parseAuthError } from '@/utils/auth-error';
 import { validateEmailPassword, validateSignUp } from '@/utils/auth-validation';
-import { useRouter } from 'next/navigation';
-import { getRedirectPath } from '@/utils/auth-redirect';
 
 type AuthMode = 'login' | 'signup';
 
@@ -27,7 +25,6 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
   onModeChange,
 }) => {
   const initializeUser = useUserStore(s => s.initialize);
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -104,9 +101,6 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
     }
 
     await initializeUser();
-
-    const redirectPath = getRedirectPath();
-    router.replace(redirectPath);
 
     onLoginSuccess?.();
     setError(null);
@@ -228,7 +222,7 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
                 !password.trim() ||
                 (isSignUp && !passwordConfirm.trim())
               }
-              className="bg-primary text-primary-foreground rounded-2xl hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:bg-muted-bg disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors font-bold py-3 px-4 w-full"
+              className="bg-primary z-10 text-primary-foreground rounded-2xl hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:bg-muted-bg disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors font-bold py-3 px-4 w-full"
             >
               {isLoading
                 ? isSignUp
