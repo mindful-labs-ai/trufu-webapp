@@ -10,16 +10,22 @@ import { QUERY_KEY } from '@/constants/queryKeys';
 interface AffinityProgressBarProps {
   userId: string;
   botId: string;
+  hasAffinity: boolean;
   messageCount?: number;
 }
 
 export function AffinityProgressBar({
   userId,
   botId,
+  hasAffinity,
   messageCount = 0,
 }: AffinityProgressBarProps) {
   const queryClient = useQueryClient();
-  const { data: affinity, isLoading } = useAffinityQuery({ userId, botId });
+  const { data: affinity, isLoading } = useAffinityQuery({
+    userId,
+    botId,
+    enabled: hasAffinity,
+  });
   const prevMessageCountRef = useRef(messageCount);
 
   useEffect(() => {
