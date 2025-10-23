@@ -58,7 +58,7 @@ export function AffinityProgressBar({
         <span className="text-lg">{levelInfo?.emoji}</span>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium text-foreground">
-            {levelInfo?.name}
+            친밀도 Lv. {levelInfo?.level} : {levelInfo?.name}
           </div>
           <div className="flex items-center space-x-2">
             <div className="flex-1 bg-muted rounded-full h-2">

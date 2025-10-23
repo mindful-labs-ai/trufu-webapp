@@ -166,12 +166,12 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                     )}
                   </div>
                 </div>
-                <button
+                {/* <button
                   onClick={handleProfileSettings}
                   className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
                 >
                   비밀번호 변경
-                </button>
+                </button> */}
                 <button
                   onClick={handleOpenCouponModal}
                   className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
@@ -206,7 +206,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 <button
                   onClick={handleDeleteAccount}
                   disabled={isUserLoading}
-                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-left px-4 py-2 text-sm text-muted-bg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   회원탈퇴
                 </button>

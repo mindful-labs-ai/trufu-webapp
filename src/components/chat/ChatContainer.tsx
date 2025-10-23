@@ -104,11 +104,11 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     );
 
     return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center max-w-3xl w-full">
+      <div className="h-full flex-1 flex items-center justify-center p-8">
+        <div className="text-center max-w-3xl w-full mb-[10%]">
           <img src="/trufu_logo_main.webp" className="w-32 mx-auto" />
           <p className="text-muted-foreground mb-8">
-            당신의 마음을 공감하고 이해하는 항해 파트너
+            당신의 마음을 공감하고 이해하는 AI 항해 파트너
           </p>
 
           {featuredFriends && featuredFriends.length > 0 && (
@@ -223,14 +223,14 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             })}
             {isLoading && (
               <div className="flex flex-row space-x-2 justify-start">
-                <div className="flex-shrink-0 pl-2 mr-2">
+                <div className="flex-shrink-0 pl-2 pt-2 mr-2">
                   <div
                     className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
                   >
                     <span className="text-primary-foreground text-sm font-medium">
                       {profileImage ? (
                         <img
-                          className="rounded-full object-cover"
+                          className="rounded-full outline outline-muted-bg object-cover"
                           src={profileImage.src}
                           alt={profileImage.alt}
                         />
@@ -241,10 +241,7 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-500 mb-1">
-                    {selectedFriend?.name}
-                  </span>
-                  <div className="bg-message-bg rounded-2xl px-4 py-3 max-w-xs lg:max-w-md">
+                  <div className="bg-message-bg w-fit rounded-2xl px-4 py-5 max-w-xs lg:max-w-md">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-foreground rounded-full animate-bounce"></div>
                       <div
@@ -321,8 +318,8 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
             isLoadingCredit
               ? '크레딧 정보를 확인하는 중...'
               : !hasCredit
-                ? '크레딧이 모두 소진되었습니다.'
-                : undefined
+              ? '크레딧이 모두 소진되었습니다.'
+              : undefined
           }
         />
       </div>

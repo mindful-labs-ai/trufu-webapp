@@ -52,7 +52,7 @@ export const ChatMessage = ({
               <span className="w-8 h-8 text-primary-foreground text-sm font-medium">
                 {profileImage ? (
                   <img
-                    className="rounded-full outline outline-accent-strong object-cover"
+                    className="rounded-full outline outline-muted-bg object-cover"
                     src={profileImage.src}
                     alt={profileImage.alt}
                   />
