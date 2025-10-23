@@ -11,6 +11,32 @@ interface CouponModalProps {
   isZeroCredit?: boolean;
 }
 
+type MessageState = {
+  type: 'success' | 'error';
+  text: string;
+} | null;
+
+const AUTO_CLOSE_DELAY = 2000;
+const CREDIT_TYPE = 'openai';
+
+const ERROR_MESSAGES: Record<string, string> = {
+  invalid_code: '유효하지 않은 쿠폰 코드입니다.',
+  already_redeemed: '이미 사용한 쿠폰입니다.',
+  missing_code: '쿠폰 코드를 입력해주세요.',
+};
+
+function parseCouponError(error: Error): string {
+  const message = error.message.toLowerCase();
+
+  for (const [key, errorMessage] of Object.entries(ERROR_MESSAGES)) {
+    if (message.includes(key)) {
+      return errorMessage;
+    }
+  }
+
+  return error.message || '쿠폰 사용 중 오류가 발생했습니다.';
+}
+
 export const CouponModal = ({
   isOpen,
   onClose,
@@ -18,11 +44,13 @@ export const CouponModal = ({
 }: CouponModalProps) => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: 'success' | 'error';
-    text: string;
-  } | null>(null);
+  const [message, setMessage] = useState<MessageState>(null);
   const queryClient = useQueryClient();
+
+  const resetForm = () => {
+    setCode('');
+    setMessage(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,38 +76,17 @@ export const CouponModal = ({
         });
         setCode('');
 
-        queryClient.invalidateQueries({ queryKey: QUERY_KEY.CREDIT('openai') });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEY.CREDIT(CREDIT_TYPE) });
 
         setTimeout(() => {
           onClose();
           setMessage(null);
-        }, 2000);
+        }, AUTO_CLOSE_DELAY);
       }
-    } catch (error: any) {
-      console.error('쿠폰 사용 에러:', error);
-
-      let errorMessage = '쿠폰 사용 중 오류가 발생했습니다.';
-      const errorMsg = error.message || '';
-
-      if (
-        errorMsg.includes('invalid_code') ||
-        errorMsg.includes('Invalid code')
-      ) {
-        errorMessage = '유효하지 않은 쿠폰 코드입니다.';
-      } else if (
-        errorMsg.includes('already_redeemed') ||
-        errorMsg.includes('Already redeemed')
-      ) {
-        errorMessage = '이미 사용한 쿠폰입니다.';
-      } else if (errorMsg.includes('Missing code')) {
-        errorMessage = '쿠폰 코드를 입력해주세요.';
-      } else if (errorMsg) {
-        errorMessage = errorMsg;
-      }
-
+    } catch (error) {
       setMessage({
         type: 'error',
-        text: errorMessage,
+        text: parseCouponError(error as Error),
       });
     } finally {
       setLoading(false);
@@ -89,8 +96,7 @@ export const CouponModal = ({
   const handleClose = () => {
     if (!loading) {
       onClose();
-      setCode('');
-      setMessage(null);
+      resetForm();
     }
   };
 
@@ -105,6 +111,7 @@ export const CouponModal = ({
             onClick={handleClose}
             disabled={loading}
             className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            aria-label="닫기"
           >
             <svg
               className="w-6 h-6"

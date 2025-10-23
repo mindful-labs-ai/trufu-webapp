@@ -4,6 +4,11 @@ import { checkEmailExists } from '@/app/actions/auth';
 import { supabase } from '@/lib/supabase';
 import { useUserStore } from '@/stores/userStore';
 import React, { useState } from 'react';
+import { parseAuthError } from '@/utils/auth-error';
+import {
+  validateEmailPassword,
+  validateSignUp,
+} from '@/utils/auth-validation';
 
 type AuthMode = 'login' | 'signup';
 
@@ -47,37 +52,71 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
         throw signInError;
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+      const errorMessage = parseAuthError(err as Error);
       setError(errorMessage);
       onError?.(errorMessage);
       setIsLoading(false);
     }
   };
 
+  const handleSignUp = async () => {
+    const { exists, error: checkError } = await checkEmailExists(email.trim());
+
+    if (checkError) {
+      throw new Error(checkError);
+    }
+
+    if (exists) {
+      throw new Error('User already registered');
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: email.trim(),
+      password: password.trim(),
+    });
+
+    if (signUpError) {
+      throw signUpError;
+    }
+
+    if (!data.user) {
+      throw new Error('회원가입에 실패했습니다.');
+    }
+
+    onSignUpSuccess?.();
+    setError(null);
+  };
+
+  const handleLogin = async () => {
+    const { data, error: signInError } =
+      await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+    if (signInError) {
+      throw signInError;
+    }
+
+    if (!data.user) {
+      throw new Error('로그인에 실패했습니다.');
+    }
+
+    await initializeUser();
+    onLoginSuccess?.();
+    setError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email.trim() || !password.trim()) {
-      setError('이메일과 비밀번호를 모두 입력해주세요.');
+    const validation = isSignUp
+      ? validateSignUp(email, password, passwordConfirm)
+      : validateEmailPassword(email, password);
+
+    if (!validation.isValid) {
+      setError(validation.error!);
       return;
-    }
-
-    if (isSignUp) {
-      if (!passwordConfirm.trim()) {
-        setError('모든 필드를 입력해주세요.');
-        return;
-      }
-
-      if (password !== passwordConfirm) {
-        setError('비밀번호가 일치하지 않습니다.');
-        return;
-      }
-
-      if (password.length < 8) {
-        setError('비밀번호는 8자 이상이어야 합니다.');
-        return;
-      }
     }
 
     setIsLoading(true);
@@ -85,71 +124,14 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
 
     try {
       if (isSignUp) {
-        const { exists, error: checkError } = await checkEmailExists(
-          email.trim()
-        );
-
-        if (checkError) {
-          throw new Error(checkError);
-        }
-
-        if (exists) {
-          throw new Error('User already registered');
-        }
-
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: password.trim(),
-        });
-
-        if (signUpError) {
-          throw signUpError;
-        }
-
-        if (!data.user) {
-          throw new Error('회원가입에 실패했습니다.');
-        }
-
-        onSignUpSuccess?.();
-        setError(null);
+        await handleSignUp();
       } else {
-        const { data, error: signInError } =
-          await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password: password.trim(),
-          });
-
-        if (signInError) {
-          throw signInError;
-        }
-
-        if (!data.user) {
-          throw new Error('로그인에 실패했습니다.');
-        }
-
-        await initializeUser();
-        onLoginSuccess?.();
-        setError(null);
+        await handleLogin();
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
-
-      let displayError = errorMessage;
-      if (errorMessage.includes('Invalid login credentials')) {
-        displayError = '이메일 또는 비밀번호가 올바르지 않습니다.';
-      } else if (errorMessage.includes('Email not confirmed')) {
-        displayError = '이메일 인증이 필요합니다.';
-      } else if (errorMessage.includes('User already registered')) {
-        displayError = '이미 가입된 이메일입니다.';
-      } else if (errorMessage.includes('Password should be at least')) {
-        displayError = '비밀번호는 8자 이상이어야 합니다.';
-      } else if (errorMessage.includes('Invalid email')) {
-        displayError = '유효하지 않은 이메일 형식입니다.';
-      }
-
-      setError(displayError);
-      onError?.(displayError);
+      const errorMessage = parseAuthError(err as Error);
+      setError(errorMessage);
+      onError?.(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -186,19 +168,13 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
             />
           </div>
 
-          <div
-            className={`mb-4 transition-all duration-700 ease-in-out ${
-              isSignUp ? 'opacity-100 max-h-32' : 'opacity-100 max-h-32'
-            }`}
-          >
-            <div className="flex items-center mb-2">
-              <label
-                className="block text-foreground text-sm font-bold"
-                htmlFor="password"
-              >
-                비밀번호
-              </label>
-            </div>
+          <div className="mb-4">
+            <label
+              className="block text-foreground text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              비밀번호
+            </label>
             <input
               id="password"
               type="password"
@@ -215,23 +191,21 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
               isSignUp ? 'opacity-100 max-h-32 mb-4' : 'opacity-0 max-h-0 mb-0'
             }`}
           >
-            <div className="mb-4">
-              <label
-                className="block text-foreground text-sm font-bold mb-2"
-                htmlFor="password-confirm"
-              >
-                비밀번호 확인
-              </label>
-              <input
-                id="password-confirm"
-                type="password"
-                placeholder="비밀번호 재입력"
-                value={passwordConfirm}
-                onChange={e => setPasswordConfirm(e.target.value)}
-                className="appearance-none border border-input rounded-2xl w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:ring-2 focus:ring-primary bg-background"
-                disabled={isLoading || !isSignUp}
-              />
-            </div>
+            <label
+              className="block text-foreground text-sm font-bold mb-2"
+              htmlFor="password-confirm"
+            >
+              비밀번호 확인
+            </label>
+            <input
+              id="password-confirm"
+              type="password"
+              placeholder="비밀번호 재입력"
+              value={passwordConfirm}
+              onChange={e => setPasswordConfirm(e.target.value)}
+              className="appearance-none border border-input rounded-2xl w-full py-2 px-3 text-foreground leading-tight focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              disabled={isLoading || !isSignUp}
+            />
           </div>
 
           {error && (

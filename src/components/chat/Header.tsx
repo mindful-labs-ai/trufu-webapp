@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreditQuery } from '@/hooks/queries/useCreditQuery';
 import { CouponModal } from '@/components/coupon/CouponModal';
+import { useCouponModal } from '@/hooks/useCouponModal';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -19,8 +20,6 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const isUserLoading = useUserStore(s => s.isLoading);
   const { theme, toggleTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
-  const [hasManuallyClosedModal, setHasManuallyClosedModal] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -28,6 +27,8 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
     type: 'openai',
     enabled: !!me,
   });
+
+  const couponModal = useCouponModal({ creditAmount: creditData?.credit });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -62,43 +63,23 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   };
 
   const handleOpenCouponModal = () => {
-    setIsCouponModalOpen(true);
-    setHasManuallyClosedModal(false);
+    couponModal.open();
     setIsProfileOpen(false);
   };
-
-  const handleCloseCouponModal = () => {
-    setIsCouponModalOpen(false);
-    setHasManuallyClosedModal(true);
-  };
-
-  useEffect(() => {
-    if (
-      creditData &&
-      creditData.credit === 0 &&
-      !isCouponModalOpen &&
-      !hasManuallyClosedModal
-    ) {
-      setIsCouponModalOpen(true);
-    }
-
-    if (creditData && creditData.credit > 0 && hasManuallyClosedModal) {
-      setHasManuallyClosedModal(false);
-    }
-  }, [creditData, isCouponModalOpen, hasManuallyClosedModal]);
 
   return (
     <>
       <CouponModal
-        isOpen={isCouponModalOpen}
-        onClose={handleCloseCouponModal}
-        isZeroCredit={creditData?.credit === 0}
+        isOpen={couponModal.isOpen}
+        onClose={couponModal.close}
+        isZeroCredit={couponModal.isZeroCredit}
       />
       <header className="bg-card border-b border-border p-4 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <button
             onClick={onMenuClick}
             className="lg:hidden p-2 rounded-md hover:bg-muted transition-colors"
+            aria-label="메뉴 열기"
           >
             <svg
               className="w-6 h-6"
@@ -124,6 +105,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary"
+              aria-label="프로필 메뉴"
             >
               <span className="text-primary-foreground text-sm font-medium">
                 {me?.email?.charAt(0).toUpperCase() || 'U'}
@@ -136,10 +118,9 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   <p className="text-sm font-medium text-foreground">
                     {me?.email || '사용자'}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {me?.isAdmin ? '관리자' : ''}
-                  </p>
-                  {/* 크레딧 표시 */}
+                  {me?.isAdmin && (
+                    <p className="text-xs text-muted-foreground mt-1">관리자</p>
+                  )}
                   <div className="mt-2 pt-2 border-t border-border/30">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
