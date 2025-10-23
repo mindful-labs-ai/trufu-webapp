@@ -1,28 +1,36 @@
 'use client';
 
-import { EmailPasswordLogin } from '@/components/auth/EmailPasswordLogin';
-import { useUserStore } from '@/stores/userStore';
-import { redirectAfterAuth } from '@/utils/auth-redirect';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { EmailAuth } from '@/components/auth/EmailAuth';
+import { useToast } from '@/contexts/ToastContext';
+import { useEffect, useState } from 'react';
+
+type AuthMode = 'login' | 'signup';
 
 export default function EmailLoginPage() {
-  const router = useRouter();
-  const currentUser = useUserStore(s => s.me);
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
-    if (currentUser) {
-      redirectAfterAuth(router);
-    }
-  }, [currentUser, router]);
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
 
-  const handleLoginSuccess = () => {
-    redirectAfterAuth(router);
-    window.location.reload();
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  const handleSignUpSuccess = () => {
+    setAuthMode('login');
+    showToast(
+      '회원가입이 완료되었습니다. 이메일을 확인하여 인증을 완료해주세요.',
+      'success'
+    );
   };
 
-  const handleLoginError = (error: string) => {
-    console.error('이메일 로그인 실패:', error);
+  const handleError = (error: string) => {
+    console.error('인증 실패:', error);
   };
 
   return (
@@ -53,22 +61,43 @@ export default function EmailLoginPage() {
         </svg>
       </div>
 
-      {/* 로그인 컴포넌트 영역 - 절대 위치로 고정 */}
-      <div className="absolute left-1/2 lg:left-[10vw] top-1/2 transform -translate-x-1/2 lg:translate-x-0 -translate-y-1/2 z-10">
-        <div className="w-96">
-          <EmailPasswordLogin
-            onSuccess={handleLoginSuccess}
-            onError={handleLoginError}
+      {/* 폼 영역 - 로그인/회원가입 */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        <div
+          className="w-96 transition-transform duration-700 ease-in-out"
+          style={{
+            transform: isLargeScreen
+              ? authMode === 'login'
+                ? 'translateX(calc(10vw - 50vw + 12rem))'
+                : 'translateX(calc(90vw - 24rem - 50vw + 12rem))'
+              : 'translateX(0)',
+          }}
+        >
+          <EmailAuth
+            mode={authMode}
+            onSignUpSuccess={handleSignUpSuccess}
+            onError={handleError}
+            onModeChange={setAuthMode}
           />
         </div>
       </div>
 
       {/* 영상 영역 */}
-      <div className="hidden lg:block absolute right-[10vw] top-1/2 transform -translate-y-1/2">
-        <div className="w-[70vw] max-w-[1280px] aspect-video rounded-2xl overflow-hidden">
-          <video autoPlay loop muted className="w-full h-full object-cover">
-            <source src="/trufu-bg-video.mp4" type="video/mp4" />
-          </video>
+      <div className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2">
+        <div
+          className="transition-all duration-700 ease-in-out"
+          style={{
+            transform:
+              authMode === 'login'
+                ? 'translateX(calc(90vw - 70vw))'
+                : 'translateX(10vw)',
+          }}
+        >
+          <div className="w-[70vw] max-w-[1280px] aspect-video rounded-2xl overflow-hidden">
+            <video autoPlay loop muted className="w-full h-full object-cover">
+              <source src="/trufu-bg-video.mp4" type="video/mp4" />
+            </video>
+          </div>
         </div>
       </div>
 

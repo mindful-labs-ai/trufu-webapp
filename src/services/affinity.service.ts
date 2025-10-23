@@ -3,34 +3,6 @@ import { Affinity } from '@/types/affinity';
 
 const PG_NO_ROWS_FOUND = 'PGRST116' as const;
 export class AffinityService {
-  static async createNewAffinity(
-    userId: string,
-    botId: string
-  ): Promise<Affinity | null> {
-    try {
-      const { data: newData, error: insertError } = await supabase
-        .from('conversations')
-        .insert({
-          user_id: userId,
-          bot_id: botId,
-          affinity: 1,
-          affinity_progress: 0.0,
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        console.error('Failed to create affinity record:', insertError);
-        return null;
-      }
-
-      return newData;
-    } catch (error) {
-      console.error('Error creating affinity record:', error);
-      return null;
-    }
-  }
-
   static async getAffinity(
     userId: string,
     botId: string
@@ -43,16 +15,32 @@ export class AffinityService {
         .eq('bot_id', botId)
         .single();
 
-      if (existingData) {
-        return existingData;
-      }
-
       if (selectError && selectError.code !== PG_NO_ROWS_FOUND) {
         console.error('Failed to get affinity:', selectError);
         return null;
       }
 
-      return await this.createNewAffinity(userId, botId);
+      if (
+        existingData?.affinity === null ||
+        existingData?.affinity_progress === null
+      ) {
+        const { data: updated, error: updateError } = await supabase
+          .from('conversations')
+          .update({
+            affinity: 1,
+            affinity_progress: 0.0,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingData.id)
+          .select('*')
+          .single();
+
+        if (updateError) throw updateError;
+
+        return updated;
+      }
+
+      return existingData;
     } catch (error) {
       console.error('Error getting affinity:', error);
       return null;

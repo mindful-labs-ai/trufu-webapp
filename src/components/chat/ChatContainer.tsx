@@ -16,6 +16,7 @@ import { CHAT_BOT_IMAGE, CHAT_BOT_PROFILE } from '@/constants/chatBotImage';
 import { CHAT_BOT } from '@/constants/chatBotIdMapping';
 import { resetUnreadCount } from '@/utils/messageCache';
 import { updateLastReadAt } from '@/services/unread.service';
+import { UnreadSummary } from '@/types/unread';
 
 interface ChatContainerProps {
   user: CurrentUser;
@@ -26,6 +27,9 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
   const queryClient = useQueryClient();
 
   const allFriends = queryClient.getQueryData<Friend[]>(QUERY_KEY.FRIENDS());
+  const conversations = queryClient.getQueryData<UnreadSummary[]>(
+    QUERY_KEY.UNREAD(user.id)
+  );
 
   const {
     messages,
@@ -54,14 +58,23 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
 
   useEffect(() => {
     if (selectedFriend?.id && user.id) {
-      const hasUnread = allFriends
-        ?.filter(friend => friend.has_unread)
-        .includes(selectedFriend);
+      const unreadSummaryForBot = conversations?.find(
+        conversation =>
+          Number(conversation.bot_id) === Number(selectedFriend.id)
+      );
+      const hasUnreadInFriends = allFriends?.some(
+        friend => friend.id === selectedFriend.id && friend.has_unread
+      );
+      const hasUnreadInSummary =
+        unreadSummaryForBot && unreadSummaryForBot.unread_count > 0;
 
-      resetUnreadCount(queryClient, selectedFriend.id);
-      if (hasUnread) updateLastReadAt(user.id.toString(), selectedFriend.id);
+      resetUnreadCount(queryClient, selectedFriend.id, user.id);
+
+      if (hasUnreadInFriends || hasUnreadInSummary) {
+        updateLastReadAt(user.id.toString(), selectedFriend.id);
+      }
     }
-  }, [selectedFriend?.id, user.id, queryClient]);
+  }, [selectedFriend?.id, user.id, queryClient, allFriends, conversations]);
 
   const friendId = selectedFriend?.id ? Number(selectedFriend.id) : undefined;
   const bottomImage = CHAT_BOT_IMAGE(friendId);
@@ -93,41 +106,19 @@ export const ChatContainer = ({ user }: ChatContainerProps) => {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-3xl w-full">
-          <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-            💬
-          </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            대화 시작하기
-          </h2>
+          <img src="/trufu_logo_main.webp" className="w-32 mx-auto" />
           <p className="text-muted-foreground mb-8">
-            대화할 친구를 선택해주세요!
+            당신의 마음을 공감하고 이해하는 항해 파트너
           </p>
 
           {featuredFriends && featuredFriends.length > 0 && (
             <div className="flex gap-4 px-4 items-center">
-              {featuredFriends.map(friend => (
-                <button
-                  key={friend.id}
-                  onClick={() => selectFriend(friend)}
-                  className="relative flex flex-1 flex-col gap-2 items-center p-4 rounded-lg border border-border active:bg-muted transition-all group"
-                >
-                  <div className="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                    <span className="text-2xl text-primary-foreground">
-                      {friend.name?.charAt(0).toUpperCase() || '💬'}
-                    </span>
-                  </div>
-                  <span className="text-md font-medium text-foreground group-hover:scale-110 transition-transform">
-                    {friend.name}
-                  </span>
-                  {friend.has_unread && (
-                    <div className="absolute top-3 translate-x-6">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-600 text-primary-foreground">
-                        {friend.unread_count || 0}
-                      </span>
-                    </div>
-                  )}
-                </button>
-              ))}
+              <button
+                onClick={() => selectFriend(featuredFriends[0])}
+                className="bg-primary mx-auto w-3/4 text-primary-foreground rounded-2xl hover:bg-primary-strong focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors font-bold py-3 px-4"
+              >
+                대화하러 가기
+              </button>
             </div>
           )}
         </div>

@@ -1,9 +1,14 @@
 'use client';
 
 import { useUserStore } from '@/stores/userStore';
-import { isPublicPath, redirectToLogin } from '@/utils/auth-redirect';
+import {
+  isPublicPath,
+  redirectToLogin,
+  getRedirectPath,
+} from '@/utils/auth-redirect';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
+import { useAuthStateSync } from '@/hooks/useAuthStateSync';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -21,12 +26,22 @@ export const AuthWrapper: React.FC<AuthWrapperProps> = ({
   const router = useRouter();
   const pathname = usePathname();
 
+  useAuthStateSync();
+
   useEffect(() => {
     initialize();
   }, [initialize]);
 
   useEffect(() => {
     if (!isInitialized || isLoading) return;
+
+    const isAuthPage = pathname === '/email-auth';
+
+    if (isAuthPage && me) {
+      const redirectPath = getRedirectPath();
+      router.replace(redirectPath);
+      return;
+    }
 
     if (!requireAuth || isPublicPath(pathname)) {
       return;

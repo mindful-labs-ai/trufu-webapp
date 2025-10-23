@@ -1,7 +1,7 @@
 import { useRouter } from 'next/navigation';
 
 const PUBLIC_PATHS = [
-  '/email-login',
+  '/email-auth',
   '/beta-login',
   '/help',
   '/terms',
@@ -20,8 +20,8 @@ export function redirectToLogin(
 ) {
   const redirectUrl =
     currentPath && currentPath !== '/'
-      ? `/email-login?redirect=${encodeURIComponent(currentPath)}`
-      : '/email-login';
+      ? `/email-auth?redirect=${encodeURIComponent(currentPath)}`
+      : '/email-auth';
 
   router.push(redirectUrl);
 }
@@ -37,5 +37,5 @@ export function getRedirectPath(): string {
 
 export function redirectAfterAuth(router: ReturnType<typeof useRouter>) {
   const redirectPath = getRedirectPath();
-  router.push(redirectPath);
+  router.replace(redirectPath);
 }

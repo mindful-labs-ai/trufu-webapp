@@ -20,6 +20,7 @@ export function ChatContainerHeader({
       <AffinityProgressBar
         userId={user.id.toString()}
         botId={chatbot.id}
+        hasAffinity={chatbot.has_affinity}
         messageCount={messageCount}
       />
     </div>
