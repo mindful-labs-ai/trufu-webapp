@@ -5,10 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useUserStore } from '@/stores/userStore';
 import React, { useState } from 'react';
 import { parseAuthError } from '@/utils/auth-error';
-import {
-  validateEmailPassword,
-  validateSignUp,
-} from '@/utils/auth-validation';
+import { validateEmailPassword, validateSignUp } from '@/utils/auth-validation';
 
 type AuthMode = 'login' | 'signup';
 
@@ -88,11 +85,12 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
   };
 
   const handleLogin = async () => {
-    const { data, error: signInError } =
-      await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
         email: email.trim(),
         password: password.trim(),
-      });
+      }
+    );
 
     if (signInError) {
       throw signInError;

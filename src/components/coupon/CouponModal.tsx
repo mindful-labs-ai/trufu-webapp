@@ -76,7 +76,9 @@ export const CouponModal = ({
         });
         setCode('');
 
-        queryClient.invalidateQueries({ queryKey: QUERY_KEY.CREDIT(CREDIT_TYPE) });
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEY.CREDIT(CREDIT_TYPE),
+        });
 
         setTimeout(() => {
           onClose();
@@ -128,12 +130,6 @@ export const CouponModal = ({
             </svg>
           </button>
         </div>
-
-        {isZeroCredit && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500 text-red-500 rounded-lg">
-            크레딧이 부족합니다. 쿠폰 코드를 입력하여 충전해주세요.
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

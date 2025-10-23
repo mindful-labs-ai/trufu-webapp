@@ -43,14 +43,16 @@ export const ChatMessage = ({
         } space-x-2`}
       >
         {isUser ? null : (
-          <div className={`flex-shrink-0 pl-2 ${isUser ? 'ml-2' : 'mr-2'}`}>
+          <div
+            className={`flex-shrink-0 pt-2 pl-2 ${isUser ? 'ml-2' : 'mr-2'}`}
+          >
             <div
               className={`w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center`}
             >
-              <span className="text-primary-foreground text-sm font-medium">
+              <span className="w-8 h-8 text-primary-foreground text-sm font-medium">
                 {profileImage ? (
                   <img
-                    className="rounded-full object-cover"
+                    className="rounded-full outline outline-accent-strong object-cover"
                     src={profileImage.src}
                     alt={profileImage.alt}
                   />
@@ -63,10 +65,6 @@ export const ChatMessage = ({
         )}
 
         <div className="flex flex-col">
-          {!isUser && friendName && (
-            <span className="text-xs text-gray-500 mb-1">{friendName}</span>
-          )}
-
           <div
             className={`rounded-2xl px-4 py-3 relative ${
               isUser
