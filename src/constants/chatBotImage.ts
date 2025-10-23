@@ -1,7 +1,7 @@
 export const CHAT_BOT_IMAGE = (botId: number | undefined) => {
   switch (botId) {
     case 1:
-      return { src: '/dopo-basic.gif', alt: 'Dopo' };
+      return { src: '/dopo-bottom.gif', alt: 'Dopo' };
 
     case 2:
       return { src: '/e-book.gif', alt: 'E-book Master' };

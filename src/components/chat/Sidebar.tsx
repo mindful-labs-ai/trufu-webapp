@@ -113,9 +113,12 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 return (
                   <div
                     key={friend.id}
-                    onClick={() => !friend.locked && selectFriend(friend)}
+                    onClick={() => {
+                      !friend.locked && selectFriend(friend);
+                      onClose();
+                    }}
                     className={`
-                  p-3 rounded-lg transition-colors duration-200 relative
+                  p-3 rounded-lg select-none transition-colors duration-200 relative
                   ${
                     friend.locked
                       ? 'cursor-not-allowed opacity-40'
@@ -148,7 +151,7 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold text-sm relative">
                         {profileImage ? (
                           <img
-                            className="rounded-full object-cover"
+                            className="rounded-full outline outline-muted-bg object-cover"
                             src={profileImage.src}
                             alt={profileImage.alt}
                           />
