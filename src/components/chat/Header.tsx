@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useCreditQuery } from '@/hooks/queries/useCreditQuery';
 import { CouponModal } from '@/components/coupon/CouponModal';
 import { useCouponModal } from '@/hooks/useCouponModal';
+import { deleteAccount } from '@/app/actions/auth';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -65,6 +66,30 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
   const handleOpenCouponModal = () => {
     couponModal.open();
     setIsProfileOpen(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!me?.id) return;
+
+    const confirmed = window.confirm(
+      '정말로 회원탈퇴 하시겠습니까? 이 작업은 되돌릴 수 없습니다.'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const { success, error } = await deleteAccount(me.id);
+
+      if (!success) {
+        throw new Error(error || '회원탈퇴에 실패했습니다.');
+      }
+
+      await logout();
+    } catch (error) {
+      alert(
+        error instanceof Error ? error.message : '회원탈퇴 중 오류가 발생했습니다.'
+      );
+    }
   };
 
   return (
@@ -178,6 +203,14 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   로그아웃
+                </button>
+                <div className="border-t border-border/50 my-1"></div>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isUserLoading}
+                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  회원탈퇴
                 </button>
               </div>
             )}

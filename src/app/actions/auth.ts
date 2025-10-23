@@ -12,15 +12,32 @@ export async function checkEmailExists(
       .eq('email', email.trim());
 
     if (error) {
-      console.error('Email check error:', error);
       return { exists: false, error: error.message };
     }
 
     return { exists: (count ?? 0) > 0 };
   } catch (err) {
-    console.error('Unexpected error in checkEmailExists:', err);
     return {
       exists: false,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    };
+  }
+}
+
+export async function deleteAccount(
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    return {
+      success: false,
       error: err instanceof Error ? err.message : 'Unknown error',
     };
   }
