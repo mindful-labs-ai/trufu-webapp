@@ -235,8 +235,8 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
                   ? '가입 중...'
                   : '로그인 중...'
                 : isSignUp
-                ? '회원가입'
-                : '로그인'}
+                  ? '회원가입'
+                  : '로그인'}
             </button>
 
             <div className="relative">

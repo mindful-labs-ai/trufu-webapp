@@ -87,7 +87,9 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
       await logout();
     } catch (error) {
       alert(
-        error instanceof Error ? error.message : '회원탈퇴 중 오류가 발생했습니다.'
+        error instanceof Error
+          ? error.message
+          : '회원탈퇴 중 오류가 발생했습니다.'
       );
     }
   };
