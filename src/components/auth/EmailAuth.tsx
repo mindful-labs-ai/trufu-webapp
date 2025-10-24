@@ -38,14 +38,15 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
     setError(null);
 
     try {
+      const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+      const callbackUrl = redirectParam
+        ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}`
+        : `${window.location.origin}/auth/callback`;
+
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${
-            window.location.origin
-          }/auth/callback?redirect=${encodeURIComponent(
-            location.pathname + location.search
-          )}`,
+          redirectTo: callbackUrl,
         },
       });
 
