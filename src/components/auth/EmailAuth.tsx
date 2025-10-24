@@ -38,7 +38,9 @@ export const EmailAuth: React.FC<EmailAuthProps> = ({
     setError(null);
 
     try {
-      const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+      const redirectParam = new URLSearchParams(window.location.search).get(
+        'redirect'
+      );
       const callbackUrl = redirectParam
         ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectParam)}`
         : `${window.location.origin}/auth/callback`;
