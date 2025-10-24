@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(0);
   const initializeUser = useUserStore(s => s.initialize);
   const currentUser = useUserStore(s => s.me);
   const isLoading = useUserStore(s => s.isLoading);
@@ -15,6 +16,16 @@ export default function HomePage() {
   useEffect(() => {
     initializeUser();
   }, [initializeUser]);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      setWindowHeight(window.innerHeight);
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
 
   if (isLoading || !currentUser) {
     return (
@@ -28,7 +39,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-screen bg-background flex-col overflow-hidden">
+    <div
+      className="flex bg-background flex-col overflow-hidden"
+      style={{ height: windowHeight > 0 ? `${windowHeight}px` : '100vh' }}
+    >
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
