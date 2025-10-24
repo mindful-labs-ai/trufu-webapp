@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ErrorPage({
   error,
@@ -46,12 +47,12 @@ export default function ErrorPage({
           >
             다시 시도
           </button>
-          <a
+          <Link
             href="/"
             className="px-6 py-3 border border-border rounded-2xl hover:bg-muted transition-colors font-medium text-foreground inline-block"
           >
             홈으로 돌아가기
-          </a>
+          </Link>
         </div>
       </div>
     </div>
