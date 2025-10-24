@@ -107,13 +107,16 @@ export const ChatInput = ({
               disabled={disabled}
               maxLength={MAX_MESSAGE_LENGTH}
               rows={1}
-              className={`overflow-y-auto text-sm w-full px-4 py-3.5 border rounded-2xl resize-none focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground transition-colors ${
+              className={`overflow-y-auto w-full px-4 border rounded-2xl resize-none focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground transition-colors ${
                 isOverLimit
                   ? 'border-red-500 focus:ring-red-500'
                   : 'border-input focus:ring-primary focus:border-transparent'
               } ${isShaking ? 'shake' : ''}`}
               style={{
-                height: '50px',
+                fontSize: '16px',
+                lineHeight: '1.5',
+                padding: '11px 16px',
+                height: '48px',
                 maxHeight: '120px',
               }}
             />
