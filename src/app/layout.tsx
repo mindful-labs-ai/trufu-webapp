@@ -1,10 +1,10 @@
 import { AuthWrapper } from '@/components/auth/AuthWrapper';
+import { GoogleAnalytics } from '@/components/common/GoogleAnalytics';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { QueryProvider } from '@/providers/QueryProvider';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -44,11 +44,12 @@ export const metadata: Metadata = {
       '공감지능 도포 서비스 Trufu. 도포를 비롯한 다양한 AI 들과 대화하며 마음을 나누어보세요.',
     images: ['/opengraph_img.png'],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: '#ffffff',
 };
 
@@ -60,18 +61,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
-          `}
-        </Script>
+        <GoogleAnalytics />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
